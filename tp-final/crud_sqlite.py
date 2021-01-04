@@ -7,7 +7,7 @@ class CrudSqlite:
     def __init__(self, fileName="default.db"):
         try:
             self.rec = sqlite3.connect(fileName)
-            self.rec.row_factory = dict_factory
+            self.rec.row_factory = _dict_factory
             self.cur = self.rec.cursor()
             self.cur.execute('CREATE TABLE IF NOT EXISTS datos(id integer, titulo text, descripcion text, PRIMARY KEY("id" AUTOINCREMENT))')
             self.cur.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_titulo ON datos (titulo)')
@@ -42,9 +42,12 @@ class CrudSqlite:
                raise TypeError('TipoRegistroError')
         campos,valores,resultset = "",[],[]
         for cosa in registro:
-            campos += cosa +" like :"+cosa+" OR "
-            valores.append("%"+str(registro.get(cosa))+"%")
+            print(cosa)
+            if str(registro.get(cosa)) != "":
+                campos += cosa +" like :"+cosa+" OR "
+                valores.append("%"+str(registro.get(cosa))+"%")
         query = "SELECT * FROM datos WHERE "+campos[:-4]
+        print(query,valores)
         self.cur.execute(query,valores)
         for x in self.cur.fetchall():
             resultset.append(x)
@@ -59,17 +62,18 @@ class CrudSqlite:
                raise TypeError('TipoRegistroError')           
         campos,valores = "",[]
         for cosa in registro:
-            campos += cosa +"=:"+cosa+" AND "
-            valores.append(str(registro.get(cosa)))  
+            if str(registro.get(cosa)) != "":
+                campos += cosa +"=:"+cosa+" AND "
+                valores.append(str(registro.get(cosa)))
         query = "DELETE FROM datos WHERE "+campos[:-5]
         self.cur.execute(query,valores)
         self.rec.commit()
-        return None
+        return None 
+    
 
-
-def dict_factory(cursor, row):
+def _dict_factory(cursor, row):
     ''' Reemplaza el generador originael de SQLite3 por uno que devuelve un dict '''
-
+      
     d = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
@@ -80,5 +84,5 @@ if __name__ == "__main__":
     ''' test module functions '''
 
     a = CrudSqlite()
-    a.guarda_datos({'titulo':'titulo 1','descripcion':'descrip1'})
+    a.guarda_datos({'titulo':'titulo 2','descripcion':'descrip2'})
     print(a.busca_datos({'titulo':"%"}))
