@@ -1,6 +1,7 @@
 import sqlite3
 
 class CrudSqlite:
+    ''' Clase para conexion y manejo de la base de datos sqlite3 '''
     rec = None
 
     def __init__(self, fileName="default.db"):
@@ -10,7 +11,8 @@ class CrudSqlite:
             self.cur = self.rec.cursor()
             self.cur.execute('CREATE TABLE IF NOT EXISTS datos(id integer, titulo text, descripcion text, PRIMARY KEY("id" AUTOINCREMENT))')
             self.cur.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_titulo ON datos (titulo)')
-        except:
+        except:            
+            self.rec = None #limpio la coneccion por las dudas
             print("Error accediendo/creando la base de datos")
         return None
     

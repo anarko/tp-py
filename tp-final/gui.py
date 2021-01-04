@@ -1,14 +1,14 @@
+import re
 import tkinter
 import crud_sqlite
 
 ''' 
     TODO : exeptions 
            form para editar/guardar
-           regex para entrada de datos
 '''
 
 class CrudTk(tkinter.Frame):
-    ''' Extiende la clase Framne de tk para poder manejar los contenedores y contenidos del crud '''
+    ''' Extiende la clase Frame de tk para poder manejar los contenedores y contenidos del crud '''
 
     def __init__(self, master):
         tkinter.Frame.__init__(self, master,height=300, width=100)
@@ -53,10 +53,13 @@ class CrudTk(tkinter.Frame):
         for cosa in self.winfo_children():
             cosa.destroy()
         
-
     def __guardar_registro__(self):
         ''' Guarda los datos integresados en la base de datos, si existen los reemplaza '''
-        print(self.titulo.get())
+        
+        # Busca que el titulo sea solo alfanumerico        
+        if re.fullmatch("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$",self.titulo.get()) is None:
+            print("Error solo letras y nros : ",self.titulo.get())            
+            return        
 
     def __buscar_registro__(self):
         ''' Busca uno o mas registros en la base de datos '''
