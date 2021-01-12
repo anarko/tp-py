@@ -4,6 +4,7 @@ from tkinter import (
     Frame,
     Scrollbar,
     Tk,
+    ttk,
     Menu,
     mainloop,
     Toplevel,
@@ -32,9 +33,9 @@ import sys,os
 root = Tk()
 root.config(bg="papaya whip")
 
-#root.state("zoomed")
+root.state("normal")
 root.minsize(800, 600)
-root.iconphoto(False, PhotoImage(file="src/huellas.png"))
+root.iconphoto(False, PhotoImage(file="img/huellas.png"))
 root.title("MASCOTAS SOFT 3.0")
 
 # ----------------------------------------------------CREAMOS FUNCIONES PARA EL SOFT ------------------------------------------------
@@ -46,7 +47,7 @@ def conn():
 
     try:
         bd = mysql.connector.connect(
-            host="localhost", user="root", passwd="nevermind91", database=""
+            host="localhost", user="anarko", passwd="marcos", database=""
         )
         return bd
 
@@ -58,7 +59,7 @@ def crear_bd(sql="CREATE DATABASE IF NOT EXISTS MASCOTAS"):
 
     try:
 
-        bd = mysql.connector.connect(host="localhost", user="root", passwd="nevermind91")
+        bd = mysql.connector.connect(host="localhost", user="anarko", passwd="marcos")
 
         c = bd.cursor()
 
@@ -194,7 +195,7 @@ def new_reg():
         bd.close()
 
     top_buscar = Toplevel(root)
-    top_buscar.iconphoto(True, PhotoImage(file="src/perro.png"))
+    top_buscar.iconphoto(True, PhotoImage(file="img/perro.png"))
     top_buscar.resizable(0, 0)
     top_buscar.title("NUEVO REGISTRO")
 
@@ -227,8 +228,10 @@ def new_reg():
     nombre = Entry(top_buscar, width=100, textvariable=nombre_var)
     raza = Entry(top_buscar, width=100, textvariable=raza_var)
     vacunas = Entry(top_buscar, width=100, textvariable=vacunas_var)
-    tipo = Entry(top_buscar, width=100, textvariable=tipo_var)
-
+    #tipo = Entry(top_buscar, width=100, textvariable=tipo_var)
+    tipo = ttk.Combobox(top_buscar, width=100)    
+    tipo["values"] = ["FELINO", "CANINO", "REPTIL", "AVE", "INSECTO", "PEZ"]
+    
     # UBICA LOS ELEMENTOS MEDIANTE EL SISTEMA DE GRILLA CON EL METODO GRID
 
     # TITULO
@@ -279,7 +282,7 @@ def ayuda():
 
     top_acerca = Toplevel(root)
     top_acerca.title("Mascotas Soft")
-    top_acerca.iconphoto(True, PhotoImage(file="src/perro.png"))
+    top_acerca.iconphoto(True, PhotoImage(file="img/perro.png"))
     top_acerca.resizable(0, 0)
 
     acercaCanva = Canvas(top_acerca, width=320, height=250, bg="black", bd=0)
@@ -381,10 +384,10 @@ def eliminar_registro():
             messagebox.showinfo("INFORMACION", "NO SE COMPLETO LA OPERACION")
 
     top_eliminar = Toplevel(root)
-    top_eliminar.iconphoto(True, PhotoImage(file="src/perro.png"))
+    top_eliminar.iconphoto(True, PhotoImage(file="img/perro.png"))
     top_eliminar.resizable(0, 0)
     top_eliminar.title("ELIMINAR REGISTRO")
-    top_eliminar.iconphoto(False, PhotoImage(file="src/huellas.png"))
+    top_eliminar.iconphoto(False, PhotoImage(file="img/huellas.png"))
     top_eliminar.config(bg="gray80")
 
     # DAMOS UN TITULO AL FORMULARIO
@@ -606,10 +609,10 @@ def buscar():
             )
 
     top_buscar = Toplevel(root)
-    top_buscar.iconphoto(True, PhotoImage(file="src/perro.png"))
+    top_buscar.iconphoto(True, PhotoImage(file="img/perro.png"))
     top_buscar.resizable(0, 0)
     top_buscar.title("BUSCAR REGISTRO")
-    top_buscar.iconphoto(False, PhotoImage(file="huellas.png"))
+    top_buscar.iconphoto(False, PhotoImage(file="img/huellas.png"))
     top_buscar.config(bg="gray80")
 
     # DAMOS UN TITULO AL FORMULARIO
@@ -783,7 +786,7 @@ def editar():
             )
 
     top_editar = Toplevel(root)
-    top_editar.iconphoto(True, PhotoImage(file="src/perro.png"))
+    top_editar.iconphoto(True, PhotoImage(file="img/perro.png"))
     top_editar.resizable(0, 0)
     top_editar.title("NUEVO REGISTRO")
     top_editar.iconphoto(False, PhotoImage(file="huellas.png"))
@@ -874,7 +877,7 @@ botonera.place(relx=0.01, rely=0.01, relheight=0.17, relwidth=0.98)
 # COMO NO VAMOS A USARLO MAS ADELANTE. NO DEFINIMOS UNA VARIABLE QUE APUNTE AL OBJETO
 # EL CAMBIO DE TEMA ES SOLO PARA CAMBIAR EL COLOR DE FONDO DE LA APP.
 # USAMOS PLACE PARA QUE LA APP SE ADAPTE A LA RESOLUCION QUE TENGA DISPONIBLE O PREFIERA EL USUARIO
-img = Image.open("src/019-add.png")
+img = Image.open("img/019-add.png")
 img = ImageTk.PhotoImage(img)
 Button(
     botonera,
@@ -887,7 +890,7 @@ Button(
 ).place(relx=0, rely=0, relheight=1, relwidth=0.105)
 
 # DEFINIMOS LA IMAGEN A USAR EN EL BOTON EDITAR Y LO DEFINIMOS
-img2 = Image.open("src/018-edit.png")
+img2 = Image.open("img/018-edit.png")
 img2 = ImageTk.PhotoImage(img2)
 Button(
     botonera,
@@ -900,7 +903,7 @@ Button(
 ).place(relx=0.11, rely=0, relheight=1, relwidth=0.105)
 
 # DEFINIMOS LA IMAGEN A USAR EN EL BOTON ELIMINAR Y LO DEFINIMOS
-img3 = Image.open("src/015-remove.png")
+img3 = Image.open("img/015-remove.png")
 img3 = ImageTk.PhotoImage(img3)
 Button(
     botonera,
@@ -913,7 +916,7 @@ Button(
 ).place(relx=0.22, rely=0, relheight=1, relwidth=0.105)
 
 # DEFINIMOS LA IMAGEN A USAR EN EL BOTON ELIMINAR Y LO DEFINIMOS
-img4 = Image.open("src/027-search.png")
+img4 = Image.open("img/027-search.png")
 img4 = ImageTk.PhotoImage(img4)
 Button(
     botonera,
@@ -926,7 +929,7 @@ Button(
 ).place(relx=0.33, rely=0, relheight=1, relwidth=0.105)
 
 # DEFINIMOS LA IMAGEN A USAR EN EL BOTON VER TODO Y LO DEFINIMOS
-img5 = Image.open("src/005-infographic.png")
+img5 = Image.open("img/005-infographic.png")
 img5 = ImageTk.PhotoImage(img5)
 Button(
     botonera,
@@ -939,7 +942,7 @@ Button(
 ).place(relx=0.44, rely=0, relheight=1, relwidth=0.105)
 
 # DEFINIMOS LA IMAGEN A USAR EN EL BOTON LIMPIAR Y LO DEFINIMOS
-img6 = Image.open("src/023-remove.png")
+img6 = Image.open("img/023-remove.png")
 img6 = ImageTk.PhotoImage(img6)
 Button(
     botonera,
@@ -952,7 +955,7 @@ Button(
 ).place(relx=0.55, rely=0, relheight=1, relwidth=0.105)
 
 # DEFINIMOS LA IMAGEN A USAR EN EL BOTON RESTAURAR Y LO DEFINIMOS
-img7 = Image.open("src/024-reload.png")
+img7 = Image.open("img/024-reload.png")
 img7 = ImageTk.PhotoImage(img7)
 Button(
     botonera,
@@ -965,7 +968,7 @@ Button(
 ).place(relx=0.66, rely=0, relheight=1, relwidth=0.105)
 
 # DEFINIMOS LA IMAGEN A USAR EN EL BOTON TEMA Y LO DEFINIMOS
-img8 = Image.open("src/028-setting.png")
+img8 = Image.open("img/028-setting.png")
 img8 = ImageTk.PhotoImage(img8)
 Button(
     botonera,
@@ -978,7 +981,7 @@ Button(
 ).place(relx=0.77, rely=0, relheight=1, relwidth=0.105)
 
 # DEFINIMOS LA IMAGEN A USAR EN EL BOTON SALIR Y LO DEFINIMOS
-img9 = Image.open("src/icon_cancelar.png")
+img9 = Image.open("img/icon_cancelar.png")
 img9 = ImageTk.PhotoImage(img9)
 Button(
     botonera,
