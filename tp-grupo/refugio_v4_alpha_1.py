@@ -1,5 +1,9 @@
 # ----------------------------------------------------IMPORTAMOS LO QUE USAREMOS ---------------------------------------------------------
-from tkinter import (
+from tkinter import Tk, PhotoImage
+import gui
+
+'''
+import (
     Button,
     Frame,
     Scrollbar,
@@ -29,14 +33,8 @@ import mysql.connector
 from mysql.connector import Error
 import sys,os
 
-# ----------------------------------------------------DEFINIMOS LA VENTANA PRINCIPAL-------------------------------------------------
-root = Tk()
-root.config(bg="papaya whip")
 
-root.state("normal")
-root.minsize(800, 600)
-root.iconphoto(False, PhotoImage(file="img/huellas.png"))
-root.title("MASCOTAS SOFT 3.0")
+
 
 # ----------------------------------------------------CREAMOS FUNCIONES PARA EL SOFT ------------------------------------------------
 # ----------------------------------------------------FUNCION PARA NUEVO REGISTRO ---------------------------------------------------
@@ -1058,3 +1056,15 @@ barraMenu.add_cascade(label="Ayuda", menu=helpMenu)
 # ---------------------------------------------------- FIN ----------------------------------------------------
 
 root.mainloop()
+'''
+
+if __name__ == "__main__":
+    root = Tk()
+    root.config(bg="papaya whip")
+
+    root.state("normal")
+    root.minsize(800, 600)
+    root.iconphoto(False, PhotoImage(file="img/huellas.png"))
+    root.title("MASCOTAS SOFT 3.0")    
+    gui.CrudTk(root)
+    root.mainloop()
