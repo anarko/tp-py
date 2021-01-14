@@ -1,5 +1,5 @@
 import tkinter
-from tkinter import  ttk
+from tkinter import  ttk,messagebox
 import re
 from tkinter.colorchooser import askcolor
 from PIL import Image, ImageTk
@@ -42,15 +42,22 @@ class CrudTk(tkinter.Frame):
         self.barraMenu.add_cascade(label="Ayuda", menu=self.helpMenu)
         
         self.botonera = tkinter.LabelFrame(master, bg="papaya whip", bd=0, height=100)
-        self.botonera.pack(fill="both", padx=2,pady=2,side='top')
+        self.botonera.pack(fill="x", padx=2,pady=2,side='top')
 
         #self.botonera.place(relx=0.01, rely=0.01, relheight=0.17, relwidth=0.98)
         
         #self.botonera.pack( side = tkinter.BOTTOM )
         #self.botonera = tkinter. LabelFrame(self, text="This is a LabelFrame")
         
-        self.mainFrame = tkinter.LabelFrame(master,bg='papaya whip', bd=0)
-        self.mainFrame.pack(fill="both", padx=2,pady=2, expand='y')
+        self.mainFrame = tkinter.LabelFrame(master,bg='papaya whip', bd=1)
+        self.mainFrame.pack(fill="both", padx=2,pady=2, expand='y', side='top')
+
+        
+        self.infoFrame = tkinter.LabelFrame(master, bg="black", bd=1, height=100)
+        self.infoFrame.pack(side="bottom", fill="x")
+        self.infoLbl = tkinter.Label(self.infoFrame, text="", font=( '', 11, 'bold'),fg='white',bg='black')
+        self.infoLbl.grid(column=0, row=0, padx=4, pady=4, sticky='W')
+
 
       # self.mainFrame = tkinter.Frame(master, bg="green")
       #  self.mainFrame.place(relx=0.01, rely=0.01, relheight=0.17, relwidth=0.98)        
@@ -192,11 +199,12 @@ class CrudTk(tkinter.Frame):
         self.mainFrame.config(text="", bd=0)
         for cosa in self.mainFrame.winfo_children():
             cosa.destroy()
+        self.infoLbl.config(text="",fg="blue", font=( '', 11, 'bold'), bd=0)
 
     def nuevo_registro(self):
         
-        self._vacia_form()        
-        self.mainFrame.config(text="Nuevo ingreso",fg="blue", font=( '', 13, 'bold'), bd=3)
+        self._vacia_form()     
+        self.mainFrame.config(text="Nuevo ingreso",fg="blue", font=( '', 13, 'bold'), bd=1)
         
         # CREAMOS LAS ETIQUETAS QUE INDICARAN QUE DATO INTRODUCIR EN CADA ENTRADA (ENTRY)
         l_nombre = tkinter.Label(self.mainFrame, text="NOMBRE", font=( '', 11, 'bold'),fg='black',bg='papaya whip')
@@ -222,18 +230,21 @@ class CrudTk(tkinter.Frame):
         vacunas.name='vacunas'
         tipo.grid(row=3, column=1, padx=1, pady=1,sticky="WE")
         tipo.name='tipo'
-        
+
+        lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg='papaya whip', width='10')
+        lfake.grid(column=2, row=0, padx=4, pady=4, sticky='nswe')
+
         b_alta = tkinter.Button(
-            self.mainFrame, text="GUARDAR",  font=( '', 11, ''),
-            #command=self._guardar_datos
+            self.mainFrame, text="GUARDAR",  font=( '', 11, ''),width='10',
+            command=self._guardar_datos
         )
-        b_alta.grid(row=4,column=0,columnspan=2,sticky='W')
+        b_alta.grid(row=0,column=3,padx=1, pady=1,sticky='WS')
         
         b_cancel = tkinter.Button(
-            self.mainFrame, text="CANCELAR",  font=( '', 11, ''),
+            self.mainFrame, text="CANCELAR",  font=( '', 11, ''),width='10',            
             command=self._vacia_form
         )
-        b_cancel.grid(row=4,column=0,columnspan=2,sticky='E')
+        b_cancel.grid(row=2,column=3, padx=1, pady=1,sticky='ES')
 
         '''
         self.top_buscar = tkinter.Toplevel(self.master)
@@ -324,14 +335,23 @@ class CrudTk(tkinter.Frame):
 
     def _guardar_datos(self):        
         r = {}
-        for h in self.top_buscar.winfo_children():
+        for h in self.mainFrame.winfo_children():
             if isinstance(h,tkinter.Entry):
                 if len(h.get()) == 0:
-                    return tkinter.messagebox.showwarning("ADVERTENCIA", "NO SE PERMITEN CAMPOS VACIOS")                
+                    self.infoLbl.config(text="No se permiten campos vacios ("+h.name+")",fg="red", font=( '', 11, 'bold'), bd=0)
+                   # return messagebox.showwarning("ADVERTENCIA", "NO SE PERMITEN CAMPOS VACIOS")
+                    return
                 if re.fullmatch("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$",h.get()) is None:
-                    return tkinter.messagebox.showwarning("ADVERTENCIA", "SOLO SE PERMITEN CARACTERES AUTONUMERICOS")
+                    self.infoLbl.config(text="No se permiten caracteres alfanumericos ("+h.name+")",fg="red", font=( '', 11, 'bold'), bd=0)
+                    return
+                    #return messagebox.showwarning("ADVERTENCIA", "SOLO SE PERMITEN CARACTERES ALFANUMERICOS")
                 r[h.name] = h.get()
-        self.db.guarda_datos(r)
+        try:
+            self.db.guarda_datos(r)
+            self.infoLbl.config(text="Ultimo registro guardado correctamente",fg="blue", font=( '', 11, 'bold'), bd=0)
+        except:
+            self.infoLbl.config(text="No se ha podido guardar el registro",fg="red", font=( '', 11, 'bold'), bd=0)
+        self._vacia_form()
 
     def ayuda(self):
         

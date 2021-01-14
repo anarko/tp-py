@@ -217,6 +217,7 @@ def new_reg():
     # DEFINIMOS LAS VARIABLES QUE USAREMOS EN ESTE CASO 3
     nombre_var, raza_var, vacunas_var, tipo_var = (
         StringVar(),
+
         StringVar(),
         StringVar(),
         StringVar(),
@@ -1065,6 +1066,6 @@ if __name__ == "__main__":
     root.state("normal")
     root.minsize(800, 600)
     root.iconphoto(False, PhotoImage(file="img/huellas.png"))
-    root.title("MASCOTAS SOFT 3.0")    
+    root.title("MASCOTAS SOFT 4.0a1")    
     gui.CrudTk(root)
     root.mainloop()
