@@ -3,6 +3,7 @@ from tkinter import  ttk,messagebox
 import re
 from tkinter.colorchooser import askcolor
 from PIL import Image, ImageTk
+from multibox import MultiListbox
 
 import crud_sqlite
 
@@ -43,24 +44,14 @@ class CrudTk(tkinter.Frame):
         
         self.botonera = tkinter.LabelFrame(master, bg="papaya whip", bd=0, height=100)
         self.botonera.pack(fill="x", padx=2,pady=2,side='top')
-
-        #self.botonera.place(relx=0.01, rely=0.01, relheight=0.17, relwidth=0.98)
-        
-        #self.botonera.pack( side = tkinter.BOTTOM )
-        #self.botonera = tkinter. LabelFrame(self, text="This is a LabelFrame")
-        
+       
         self.mainFrame = tkinter.LabelFrame(master,bg='papaya whip', bd=1)
         self.mainFrame.pack(fill="both", padx=2,pady=2, expand='y', side='top')
-
         
         self.infoFrame = tkinter.LabelFrame(master, bg="black", bd=1, height=100)
         self.infoFrame.pack(side="bottom", fill="x")
         self.infoLbl = tkinter.Label(self.infoFrame, text="", font=( '', 11, 'bold'),fg='white',bg='black')
         self.infoLbl.grid(column=0, row=0, padx=4, pady=4, sticky='W')
-
-
-      # self.mainFrame = tkinter.Frame(master, bg="green")
-      #  self.mainFrame.place(relx=0.01, rely=0.01, relheight=0.17, relwidth=0.98)        
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON NUEVO Y LO DEFINIMOS
         # COMO NO VAMOS A USARLO MAS ADELANTE. NO DEFINIMOS UNA VARIABLE QUE APUNTE AL OBJETO
@@ -80,7 +71,7 @@ class CrudTk(tkinter.Frame):
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON EDITAR Y LO DEFINIMOS
         self.img2 = ImageTk.PhotoImage(Image.open("img/018-edit.png"))
-        tkinter.Button(
+        self.btn_editar = tkinter.Button(
             self.botonera,
             text="EDITAR",
             bg="gray90",
@@ -88,12 +79,14 @@ class CrudTk(tkinter.Frame):
             fg='black',
             image=self.img2,
             compound="top",
+            state="disabled",
             #command=editar,
-        ).place(relx=0.11, rely=0, relheight=1, relwidth=0.105)
+        )
+        self.btn_editar.place(relx=0.11, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON ELIMINAR Y LO DEFINIMOS
         self.img3 = ImageTk.PhotoImage(Image.open("img/015-remove.png"))
-        tkinter.Button(
+        self.btn_eliminar = tkinter.Button(
             self.botonera,
             text="ELIMINAR",
             bg="gray90",
@@ -101,8 +94,10 @@ class CrudTk(tkinter.Frame):
             fg='black',
             image=self.img3,
             compound="top",
-            #command=eliminar_registro,
-        ).place(relx=0.22, rely=0, relheight=1, relwidth=0.105)
+            state="disabled",
+            command=self.eliminar_registro,
+        )
+        self.btn_eliminar.place(relx=0.22, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON ELIMINAR Y LO DEFINIMOS
         self.img4 = ImageTk.PhotoImage(Image.open("img/027-search.png"))
@@ -114,7 +109,7 @@ class CrudTk(tkinter.Frame):
             fg='black',
             image=self.img4,
             compound="top",
-            #command=buscar,
+            command=self.buscar_datos,
         ).place(relx=0.33, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON VER TODO Y LO DEFINIMOS
@@ -183,29 +178,45 @@ class CrudTk(tkinter.Frame):
         ).place(relx=0.88, rely=0, relheight=1, relwidth=0.105)
     
 
+    def eliminar_registro(self):
+        ''' Elimina un el registro seleccionado del listbox '''
+        r = self.Lb1.__getitem__(self.Lb1.curselection()) 
+        valor = messagebox.askquestion("Eliminar","Esta seguro de eliminar el registro seleccionado?")
+        if valor == "yes":
+            #armo el registro            
+            self.db.elimina_datos({'id':r[0]})
+        try:
+            self._buscar_datos()
+        except:
+            pass
 
     def tema(self):
+        ''' Modificar el tema de colores '''
         result = askcolor(color="#00ff00", title="Seleccionar Color")
 
         try:
             self.master.configure(background=str(result[1]))
             #listado.configure(background=str(result[1]))
             self.botonera.configure(background=str(result[1]))
+            self.mainFrame.configure(background=str(result[1]))
         except:
             return
 
     def _vacia_form(self):
         ''' destruye los elementos del form '''        
+
         self.mainFrame.config(text="", bd=0)
         for cosa in self.mainFrame.winfo_children():
             cosa.destroy()
-        self.infoLbl.config(text="",fg="blue", font=( '', 11, 'bold'), bd=0)
+        self.btn_editar.configure(state="disable")
+        self.btn_eliminar.configure(state="disable")
 
-    def nuevo_registro(self):
-        
-        self._vacia_form()     
-        self.mainFrame.config(text="Nuevo ingreso",fg="blue", font=( '', 13, 'bold'), bd=1)
-        
+
+    def _blank_form(self):
+        ''' Genera un form con los datos en blanco dentro del mainFrame '''
+
+        self.infoLbl.config(text="",fg="blue", font=( '', 11, 'bold'), bd=0)        
+        self._vacia_form()             
         # CREAMOS LAS ETIQUETAS QUE INDICARAN QUE DATO INTRODUCIR EN CADA ENTRADA (ENTRY)
         l_nombre = tkinter.Label(self.mainFrame, text="NOMBRE", font=( '', 11, 'bold'),fg='black',bg='papaya whip')
         l_raza = tkinter.Label(self.mainFrame, text="RAZA", font=( '', 11, 'bold'),fg='black',bg='papaya whip')
@@ -217,7 +228,7 @@ class CrudTk(tkinter.Frame):
         l_vacunas.grid(column=0, row=2, padx=4, pady=4, sticky='W')
         l_tipo.grid(column=0, row=3, padx=4, pady=4, sticky='W')
         
-        nombre = tkinter.Entry(self.mainFrame, width=50)
+        nombre = tkinter.Entry(self.mainFrame, width=50)        
         raza = tkinter.Entry(self.mainFrame, width=50)
         vacunas = tkinter.Entry(self.mainFrame, width=50)
         tipo = ttk.Combobox(self.mainFrame, width=50, state="readonly")    
@@ -230,6 +241,52 @@ class CrudTk(tkinter.Frame):
         vacunas.name='vacunas'
         tipo.grid(row=3, column=1, padx=1, pady=1,sticky="WE")
         tipo.name='tipo'
+
+    def buscar_datos(self):
+        ''' Busca en la base de datos en base a lo ingresado en el form '''
+
+        self._blank_form()
+        self.mainFrame.config(text="Buscar ingreso",fg="blue", font=( '', 13, 'bold'), bd=1)
+        
+        lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg='papaya whip', width='10')
+        lfake.grid(column=2, row=0, padx=4, pady=4, sticky='nswe')
+
+        b_alta = tkinter.Button(
+            self.mainFrame, text="BUSCAR",  font=( '', 11, ''),width='10',
+            command=self._buscar_datos
+        )
+        b_alta.grid(row=0,column=3,padx=1, pady=1,sticky='WS')
+
+        listado = tkinter.Frame(self.mainFrame, bg="papaya whip")
+        listado.place(relx=0.01, rely=0.3, relheight=0.68, relwidth=0.99)
+        self.Lb1 = MultiListbox(listado, ['Id', 'Nombre', 'Raza','Vacunas','Tipo','Fecha'], width=4)        
+        self.Lb1.pack(fill="both", expand=True)
+
+
+    def _buscar_datos(self):
+        r = {}
+        for h in self.mainFrame.winfo_children():
+            if isinstance(h,tkinter.Entry):
+                if len(h.get()) != 0: 
+                    if re.fullmatch("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$",h.get()) is None:
+                        self.infoLbl.config(text="Solo permiten caracteres alfanumericos ("+h.name+")",fg="red", font=( '', 11, 'bold'), bd=0)
+                        return
+                    r[h.name] = h.get()
+        self.Lb1.vaciar()
+        try :
+            result = self.db.busca_datos(r)
+            for r in result:
+                self.Lb1.add_data(r)
+        except:
+            self.infoLbl.config(text="No se ha podido realizar la busqueda ",fg="red", font=( '', 11, 'bold'), bd=0)
+        
+        if len(r) > 0 :
+            self.btn_editar.configure(state="normal")
+            self.btn_eliminar.configure(state="normal")
+
+    def nuevo_registro(self):
+        self._blank_form()
+        self.mainFrame.config(text="Nuevo ingreso",fg="blue", font=( '', 13, 'bold'), bd=1)
 
         lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg='papaya whip', width='10')
         lfake.grid(column=2, row=0, padx=4, pady=4, sticky='nswe')
@@ -245,93 +302,7 @@ class CrudTk(tkinter.Frame):
             command=self._vacia_form
         )
         b_cancel.grid(row=2,column=3, padx=1, pady=1,sticky='ES')
-
-        '''
-        self.top_buscar = tkinter.Toplevel(self.master)
-        self.top_buscar.iconphoto(True, tkinter.PhotoImage(file="img/perro.png"))
-        self.top_buscar.resizable(0, 0)
-        self.top_buscar.title("NUEVO REGISTRO")
-
-        self.top_buscar.config(bg="gray80")
-        # DAMOS UN TITULO AL FORMULARIO
-        l_titulo = tkinter.Label(
-            self.top_buscar,
-            fg="white",
-            text="ALTA DE MASCOTAS",
-            font=("calibri bold", 15),
-        )
-                        
-        
-        
-
-        
-        # CREAMOS LAS ETIQUETAS QUE INDICARAN QUE DATO INTRODUCIR EN CADA ENTRADA (ENTRY)
-        l_nombre = tkinter.Label(self.top_buscar, text="NOMBRE", font=("calibri bold", 11), bg="gray80")
-        l_raza = tkinter.Label(self.top_buscar, text="RAZA", font=("calibri bold", 11), bg="gray80")
-        l_vacunas = tkinter.Label(
-            self.top_buscar, text="VACUNAS", font=("calibri bold", 11), bg="gray80"
-        )
-        l_tipo = tkinter.Label(self.top_buscar, text="TIPO", font=("calibri bold", 11), bg="gray80")
-
-        # DEFINIMOS LOS CAMPOS DE ENTRADA "ENTRY"
-        nombre = tkinter.Entry(self.top_buscar, width=50)
-        raza = tkinter.Entry(self.top_buscar, width=50)
-        vacunas = tkinter.Entry(self.top_buscar, width=50)
-        #tipo = Entry(top_buscar, width=100, textvariable=tipo_var)
-        tipo = ttk.Combobox(self.top_buscar, width=50, state="readonly")    
-        tipo["values"] = self.tipo_animal
-        
-        # UBICA LOS ELEMENTOS MEDIANTE EL SISTEMA DE GRILLA CON EL METODO GRID
-
-        # TITULO
-        l_titulo.grid(row=0, column=0, columnspan=3, sticky=tkinter.W + tkinter.E)
-        l_titulo.config(bg="steel blue")  # Ponemos color de fondo al titulo
-
-        # ETIQUETAS
-        l_nombre.grid(row=2, column=0, sticky=tkinter.W, padx=10, pady=1)
-        l_raza.grid(row=3, column=0, sticky=tkinter.W, padx=10, pady=1)
-        l_vacunas.grid(row=4, column=0, sticky=tkinter.W, padx=10, pady=1)
-        l_tipo.grid(row=5, column=0, sticky=tkinter.W, padx=10, pady=1)
-
-        # CAMPOS DE ENTRADA
-        nombre.grid(row=2, column=1, padx=1, pady=1, columnspan=2)
-        nombre.name='nombre'
-        raza.grid(row=3, column=1, padx=1, pady=1, columnspan=2)
-        raza.name='raza'
-        vacunas.grid(row=4, column=1, padx=1, pady=1, columnspan=2)
-        vacunas.name='vacunas'
-        tipo.grid(row=5, column=1, padx=1, pady=1, columnspan=2)
-        tipo.name='tipo'
-
-        color_sorpresa = "gray80"
-
-        self.top_buscar.configure(background=color_sorpresa)
-        l_nombre.configure(background=color_sorpresa)
-        l_raza.configure(background=color_sorpresa)
-        l_vacunas.configure(background=color_sorpresa)
-        l_tipo.configure(background=color_sorpresa)
-
-        # CREAMOS EL BOTON BUSCAR, DAMOS EL GRID
-
-        b_alta = tkinter.Button(
-            self.top_buscar, text="ALTA REGISTRO", font=("calibri bold", 11),              
-            command=self._guardar_datos
-        )
-        b_alta.grid(row=6, column=1, padx=1, pady=1, sticky=tkinter.W + tkinter.E)
-        b_cancel = tkinter.Button(
-            self.top_buscar, text="CANCELAR", font=("calibri bold", 11),              
-            command=lambda :self.top_buscar.destroy()
-        )
-        b_cancel.grid(row=6, column=2, padx=1, pady=1, sticky=tkinter.W + tkinter.E)
-
-        nombre.focus_set()
-
-        # METODOS PARA MANTENER LA PRIORIDAD DE TOPLEVEL SOBRE TK
-        self.top_buscar.grab_set()
-        self.top_buscar.focus_set()
-        self.top_buscar.wait_window()
-        self.top_buscar.mainloop()
-        '''
+        self.update()
 
     def _guardar_datos(self):        
         r = {}
@@ -342,7 +313,7 @@ class CrudTk(tkinter.Frame):
                    # return messagebox.showwarning("ADVERTENCIA", "NO SE PERMITEN CAMPOS VACIOS")
                     return
                 if re.fullmatch("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$",h.get()) is None:
-                    self.infoLbl.config(text="No se permiten caracteres alfanumericos ("+h.name+")",fg="red", font=( '', 11, 'bold'), bd=0)
+                    self.infoLbl.config(text="Solo permiten caracteres alfanumericos ("+h.name+")",fg="red", font=( '', 11, 'bold'), bd=0)
                     return
                     #return messagebox.showwarning("ADVERTENCIA", "SOLO SE PERMITEN CARACTERES ALFANUMERICOS")
                 r[h.name] = h.get()

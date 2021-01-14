@@ -8,7 +8,7 @@ class CrudSqlite:
     def __init__(self, fileName="default.db"):
         try:
             self.rec = sqlite3.connect(fileName)
-            self.rec.row_factory = _dict_factory
+            #self.rec.row_factory = _dict_factory
         except:            
             self.rec = None #limpio la coneccion por las dudas
             raise RuntimeError("Error accediendo/creando la base de datos")            
@@ -58,7 +58,7 @@ class CrudSqlite:
             if str(registro.get(cosa)) != "":
                 campos += cosa +" like :"+cosa+" OR "
                 valores.append("%"+str(registro.get(cosa))+"%")
-        query = "SELECT * FROM datos WHERE "+campos[:-4]
+        query = "SELECT * FROM mascotas WHERE "+campos[:-4]
         print(query,valores)
         self.cur.execute(query,valores)
         for x in self.cur.fetchall():
@@ -77,7 +77,7 @@ class CrudSqlite:
             if str(registro.get(cosa)) != "":
                 campos += cosa +"=:"+cosa+" AND "
                 valores.append(str(registro.get(cosa)))
-        query = "DELETE FROM datos WHERE "+campos[:-5]
+        query = "DELETE FROM mascotas WHERE "+campos[:-5]
         self.cur.execute(query,valores)
         self.rec.commit()
         return None 
