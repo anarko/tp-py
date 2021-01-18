@@ -362,7 +362,7 @@ class CrudTk(tkinter.Frame):
         acercaCanva.create_text(
             160,
             120,
-            text="Copyright  2020 Grupo III Python\n\nBROCHERO FRANCO\nDIAZ VIVERA MICAELA\nKOVACIC MARTIN\nPICARD SMITH JUAN MARCOS\nSCILLATO GERMAN",
+            text="Copyright  2020 Grupo III Python\n\nBROCHERO FRANCO\nKOVACIC MARTIN\nPICARD SMITH JUAN MARCOS\nSCILLATO GERMAN",
             font="Arial 12",
             fill="white",
         )
