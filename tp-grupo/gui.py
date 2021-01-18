@@ -1,11 +1,12 @@
 import tkinter
-from tkinter import  ttk,messagebox
 import re
+
+from tkinter import  ttk,messagebox
 from tkinter.colorchooser import askcolor
 from PIL import Image, ImageTk
-from multibox import MultiListbox
 
 import crud_sqlite
+from multibox import MultiListbox
 
 class CrudTk(tkinter.Frame):
     ''' Extiende la clase Frame de tk para poder manejar los contenedores y contenidos del crud '''
@@ -25,15 +26,15 @@ class CrudTk(tkinter.Frame):
         self.fileMenu.add_command(label="Salir", command=master.destroy)
 
         self.bdatosMenu = tkinter.Menu(self.barraMenu, tearoff=0)
-        self.bdatosMenu.add_command(label="Crear Nueva BD", command=self.db.nueva_tabla)
-        self.bdatosMenu.add_command(label="Crear Nueva Tabla", command=self.db.nueva_tabla )
-        self.bdatosMenu.add_command(label="Crear Nuevo Registro",command=self.nuevo_registro)
-        self.bdatosMenu.add_separator()
-        self.bdatosMenu.add_command(label="Ver Todos los Regitros",)
-        self.bdatosMenu.add_separator()
-        self.bdatosMenu.add_command(label="Eliminar BD",)
-        self.bdatosMenu.add_command(label="Eliminar Tabla",)
-        self.bdatosMenu.add_command(label="Eliminar Registro",)
+        self.bdatosMenu.add_command(label="Crear Nueva BD", command=self.vacia_base_datos)
+        self.bdatosMenu.add_command(label="Crear Nueva Tabla", command=self.vacia_base_datos )
+        #self.bdatosMenu.add_command(label="Crear Nuevo Registro",command=self.nuevo_registro)
+        #self.bdatosMenu.add_separator()
+        #self.bdatosMenu.add_command(label="Ver Todos los Regitros",)
+        #self.bdatosMenu.add_separator()
+        #self.bdatosMenu.add_command(label="Eliminar BD",)
+        #self.bdatosMenu.add_command(label="Eliminar Tabla",)
+        #self.bdatosMenu.add_command(label="Eliminar Registro",)
 
         self.helpMenu = tkinter.Menu(self.barraMenu, tearoff=0)
         self.helpMenu.add_command(label="Acerca de...", command = self.ayuda)
@@ -45,9 +46,11 @@ class CrudTk(tkinter.Frame):
         self.botonera = tkinter.LabelFrame(master, bg="papaya whip", bd=0, height=100)
         self.botonera.pack(fill="x", padx=2,pady=2,side='top')
        
+        # CREAMOS UN FRAME DONDE PONDERMOS LOS COMPONENTES A USAR EN CADA MOMENTO 
         self.mainFrame = tkinter.LabelFrame(master,bg='papaya whip', bd=1)
         self.mainFrame.pack(fill="both", padx=2,pady=2, expand='y', side='top')
         
+        # CREAMOS UN FRAME INFERIOR PARA EL INFO
         self.infoFrame = tkinter.LabelFrame(master, bg="black", bd=1, height=100)
         self.infoFrame.pack(side="bottom", fill="x")
         self.infoLbl = tkinter.Label(self.infoFrame, text="", font=( '', 11, 'bold'),fg='white',bg='black')
@@ -135,7 +138,7 @@ class CrudTk(tkinter.Frame):
             fg='black',
             image=self.img6,
             compound="top",
-            #command=limpiar,
+            command=self.vacia_base_datos,
         ).place(relx=0.55, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON RESTAURAR Y LO DEFINIMOS
@@ -148,7 +151,7 @@ class CrudTk(tkinter.Frame):
             fg='black',
             image=self.img7,
             compound="top",
-            #command=restaurar,
+            command=self.vacia_base_datos,
         ).place(relx=0.66, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON TEMA Y LO DEFINIMOS
@@ -176,14 +179,20 @@ class CrudTk(tkinter.Frame):
             compound="top",
             command=master.destroy,
         ).place(relx=0.88, rely=0, relheight=1, relwidth=0.105)
-    
+
+    def vacia_base_datos(self):
+        ''' Reinicia la base de datos '''
+        valor = messagebox.askquestion("Restarurar","Esta seguro de que desea borrar todos los datos?")
+        if valor == "yes":
+            self.db.nueva_tabla()
+
 
     def eliminar_registro(self):
         ''' Elimina un el registro seleccionado del listbox '''
         r = self.Lb1.__getitem__(self.Lb1.curselection()) 
         valor = messagebox.askquestion("Eliminar","Esta seguro de eliminar el registro seleccionado?")
         if valor == "yes":
-            #armo el registro            
+            # ELIMINA EL REGISTRO SELECCIONADO EN EL GRID       
             self.db.elimina_datos({'id':r[0]})
         try:
             self._buscar_datos()
@@ -204,7 +213,7 @@ class CrudTk(tkinter.Frame):
 
     def _vacia_form(self):
         ''' destruye los elementos del form '''        
-
+        # ELIMINA TODOS LOS WIDGETS DEL MAINFRAME PARA PODER USARLO DE NUEVO
         self.mainFrame.config(text="", bd=0)
         for cosa in self.mainFrame.winfo_children():
             cosa.destroy()
@@ -228,6 +237,7 @@ class CrudTk(tkinter.Frame):
         l_vacunas.grid(column=0, row=2, padx=4, pady=4, sticky='W')
         l_tipo.grid(column=0, row=3, padx=4, pady=4, sticky='W')
         
+        # CRAMOS LOS ENTRY PARA LOS DATOS
         nombre = tkinter.Entry(self.mainFrame, width=50)        
         raza = tkinter.Entry(self.mainFrame, width=50)
         vacunas = tkinter.Entry(self.mainFrame, width=50)
@@ -247,7 +257,8 @@ class CrudTk(tkinter.Frame):
 
         self._blank_form()
         self.mainFrame.config(text="Buscar ingreso",fg="blue", font=( '', 13, 'bold'), bd=1)
-        
+
+        # LABEL VACIO PARA SEPARAR LOS BOTONES DE LOS ENTRY        
         lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg='papaya whip', width='10')
         lfake.grid(column=2, row=0, padx=4, pady=4, sticky='nswe')
 
@@ -257,6 +268,7 @@ class CrudTk(tkinter.Frame):
         )
         b_alta.grid(row=0,column=3,padx=1, pady=1,sticky='WS')
 
+        # CREAMOS EL FRAME DONDE VAN A IR LOS RESULTADOS DE LA BUSQUDA
         listado = tkinter.Frame(self.mainFrame, bg="papaya whip")
         listado.place(relx=0.01, rely=0.3, relheight=0.68, relwidth=0.99)
         self.Lb1 = MultiListbox(listado, ['Id', 'Nombre', 'Raza','Vacunas','Tipo','Fecha'], width=4)        
@@ -265,16 +277,20 @@ class CrudTk(tkinter.Frame):
 
     def _buscar_datos(self):
         r = {}
+        # RECORREMOS LOS WIDGET DEL MAINFRAME PARA OBTENER LOS ENTRY DE DATOS
         for h in self.mainFrame.winfo_children():
             if isinstance(h,tkinter.Entry):
-                if len(h.get()) != 0: 
+                if len(h.get()) != 0:
+                    # COMPROBAMOS QUE SE INGRESEN SOLO CARACTERES ALFANUMERICOS
                     if re.fullmatch("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$",h.get()) is None:
                         self.infoLbl.config(text="Solo permiten caracteres alfanumericos ("+h.name+")",fg="red", font=( '', 11, 'bold'), bd=0)
                         return
                     r[h.name] = h.get()
+        # VACIAMOS EL GRID
         self.Lb1.vaciar()
         try :
             result = self.db.busca_datos(r)
+            # LO LLENAMOS CON LOS RESULTADOS
             for r in result:
                 self.Lb1.add_data(r)
         except:
@@ -285,12 +301,16 @@ class CrudTk(tkinter.Frame):
             self.btn_eliminar.configure(state="normal")
 
     def nuevo_registro(self):
+        ''' Arma el form para un nuevo registro''' 
+        
+        # CONFIGURAMOS EL MAINFRAME PARA UN NUEVO INGRESO
         self._blank_form()
         self.mainFrame.config(text="Nuevo ingreso",fg="blue", font=( '', 13, 'bold'), bd=1)
 
         lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg='papaya whip', width='10')
         lfake.grid(column=2, row=0, padx=4, pady=4, sticky='nswe')
-
+        
+        # AGREGAMOS LOS BOTONES PARA GUARDAR O CANCELAR
         b_alta = tkinter.Button(
             self.mainFrame, text="GUARDAR",  font=( '', 11, ''),width='10',
             command=self._guardar_datos
@@ -309,23 +329,24 @@ class CrudTk(tkinter.Frame):
         for h in self.mainFrame.winfo_children():
             if isinstance(h,tkinter.Entry):
                 if len(h.get()) == 0:
+                    # COMPRUEBA QUE NO SE INGRESEN CAMPOS VACIOS
                     self.infoLbl.config(text="No se permiten campos vacios ("+h.name+")",fg="red", font=( '', 11, 'bold'), bd=0)
-                   # return messagebox.showwarning("ADVERTENCIA", "NO SE PERMITEN CAMPOS VACIOS")
                     return
                 if re.fullmatch("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$",h.get()) is None:
+                    # COMPRUEBA QUE SOLO SE INGRESEN CARACTERES ALFANUMERICOS
                     self.infoLbl.config(text="Solo permiten caracteres alfanumericos ("+h.name+")",fg="red", font=( '', 11, 'bold'), bd=0)
                     return
-                    #return messagebox.showwarning("ADVERTENCIA", "SOLO SE PERMITEN CARACTERES ALFANUMERICOS")
                 r[h.name] = h.get()
         try:
             self.db.guarda_datos(r)
-            self.infoLbl.config(text="Ultimo registro guardado correctamente",fg="blue", font=( '', 11, 'bold'), bd=0)
+            self.infoLbl.config(text="Ultimo registro guardado correctamente",fg="white", font=( '', 11, 'bold'), bd=0)
         except:
             self.infoLbl.config(text="No se ha podido guardar el registro",fg="red", font=( '', 11, 'bold'), bd=0)
         self._vacia_form()
 
     def ayuda(self):
-        
+        ''' Muestra ventanita de  acerda de '''
+
         top_acerca = tkinter.Toplevel(self.master)
         top_acerca.title("Mascotas Soft")
         top_acerca.iconphoto(True, tkinter.PhotoImage(file="img/perro.png"))
