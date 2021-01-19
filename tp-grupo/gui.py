@@ -6,7 +6,7 @@ from tkinter.colorchooser import askcolor
 from PIL import Image, ImageTk
 
 import crud_sqlite
-from multibox import MultiListbox
+
 
 class CrudTk(tkinter.Frame):
     ''' Extiende la clase Frame de tk para poder manejar los contenedores y contenidos del crud '''
