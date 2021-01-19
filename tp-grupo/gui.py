@@ -189,11 +189,12 @@ class CrudTk(tkinter.Frame):
 
     def eliminar_registro(self):
         ''' Elimina un el registro seleccionado del listbox '''
-        r = self.Lb1.__getitem__(self.Lb1.curselection()) 
+        #  TRAE DEL GRID EL ID DEL ANIMAL
+        item_id = self.tree.item(self.tree.selection()[0],option="text")        
         valor = messagebox.askquestion("Eliminar","Esta seguro de eliminar el registro seleccionado?")
         if valor == "yes":
             # ELIMINA EL REGISTRO SELECCIONADO EN EL GRID       
-            self.db.elimina_datos({'id':r[0]})
+            self.db.elimina_datos({'id':item_id})
         try:
             self._buscar_datos()
         except:
@@ -271,8 +272,38 @@ class CrudTk(tkinter.Frame):
         # CREAMOS EL FRAME DONDE VAN A IR LOS RESULTADOS DE LA BUSQUDA
         listado = tkinter.Frame(self.mainFrame, bg="papaya whip")
         listado.place(relx=0.01, rely=0.3, relheight=0.68, relwidth=0.99)
-        self.Lb1 = MultiListbox(listado, ['Id', 'Nombre', 'Raza','Vacunas','Tipo','Fecha'], width=4)        
-        self.Lb1.pack(fill="both", expand=True)
+        #self.Lb1 = MultiListbox(listado, ['Id', 'Nombre', 'Raza','Vacunas','Tipo','Fecha'], width=4)        
+        #self.Lb1.pack(fill="both", expand=True)
+        scrollbar_y = tkinter.Scrollbar(listado)
+        scrollbar_y.place(relx=0.975, rely=0.01, relheight=0.99, relwidth=0.015)
+        scrollbar_x = tkinter.Scrollbar(listado)
+        scrollbar_x.place(relx=0, rely=0.95, relheight=0.05, relwidth=0.975)
+
+        # TREEVIEW
+        self.tree = ttk.Treeview(
+            listado,
+            columns=("#1", "#2", "#3", "#4","#5"),
+            yscrollcommand=scrollbar_y.set,
+            xscrollcommand=scrollbar_x.set,
+            selectmode="browse",
+        )
+
+        self.tree.place(relx=0, rely=0.01, relheight=0.95, relwidth=0.975)
+        self.tree.heading("#0", text="ID")
+        self.tree.heading("#1", text="NOMBRE")
+        self.tree.heading("#2", text="RAZA")
+        self.tree.heading("#3", text="VACUNAS")
+        self.tree.heading("#4", text="TIPO")
+        self.tree.heading("#5", text="FECHA")
+        self.tree.column("#0", width=20)
+        self.tree.column("#1", width=130)
+        self.tree.column("#2", width=130)
+        self.tree.column("#3", width=130)
+        self.tree.column("#4", width=130)
+        self.tree.column("#5", width=130)
+
+        scrollbar_y.config(orient=tkinter.VERTICAL, command=self.tree.yview)
+        scrollbar_x.config(orient=tkinter.HORIZONTAL, command=self.tree.xview)
 
 
     def _buscar_datos(self):
@@ -287,12 +318,18 @@ class CrudTk(tkinter.Frame):
                         return
                     r[h.name] = h.get()
         # VACIAMOS EL GRID
-        self.Lb1.vaciar()
+        self.tree.delete(*self.tree.get_children())
         try :
             result = self.db.busca_datos(r)
             # LO LLENAMOS CON LOS RESULTADOS
             for r in result:
-                self.Lb1.add_data(r)
+                #self.Lb1.add_data(r)
+                self.tree.insert(
+                "",
+                1,
+                text=r[0],
+                values=r[1:],
+                )
         except:
             self.infoLbl.config(text="No se ha podido realizar la busqueda ",fg="red", font=( '', 11, 'bold'), bd=0)
         
