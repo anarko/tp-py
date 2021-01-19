@@ -3,7 +3,7 @@ from tkinter import Tk, PhotoImage
 import gui
 
 # TODO: el form para editar
-#       boton mostrar todos los registros haga lo que dice
+
 
 if __name__ == "__main__":
     root = Tk()

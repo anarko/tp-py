@@ -1,5 +1,6 @@
 import tkinter
 import re
+import datetime
 
 from tkinter import  ttk,messagebox
 from tkinter.colorchooser import askcolor
@@ -125,7 +126,7 @@ class CrudTk(tkinter.Frame):
             fg='black',
             image=self.img5,
             compound="top",
-            #command=ver_registros,
+            command=self.ver_todos,
         ).place(relx=0.44, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON LIMPIAR Y LO DEFINIMOS        
@@ -206,7 +207,6 @@ class CrudTk(tkinter.Frame):
 
         try:
             self.master.configure(background=str(result[1]))
-            #listado.configure(background=str(result[1]))
             self.botonera.configure(background=str(result[1]))
             self.mainFrame.configure(background=str(result[1]))
         except:
@@ -268,12 +268,12 @@ class CrudTk(tkinter.Frame):
             command=self._buscar_datos
         )
         b_alta.grid(row=0,column=3,padx=1, pady=1,sticky='WS')
-
+        self._nuevo_grid()
+        
+    def _nuevo_grid(self, srely=0.3,srelheight=0.68):
         # CREAMOS EL FRAME DONDE VAN A IR LOS RESULTADOS DE LA BUSQUDA
         listado = tkinter.Frame(self.mainFrame, bg="papaya whip")
-        listado.place(relx=0.01, rely=0.3, relheight=0.68, relwidth=0.99)
-        #self.Lb1 = MultiListbox(listado, ['Id', 'Nombre', 'Raza','Vacunas','Tipo','Fecha'], width=4)        
-        #self.Lb1.pack(fill="both", expand=True)
+        listado.place(relx=0.01, rely=srely, relheight=srelheight, relwidth=0.99)
         scrollbar_y = tkinter.Scrollbar(listado)
         scrollbar_y.place(relx=0.975, rely=0.01, relheight=0.99, relwidth=0.015)
         scrollbar_x = tkinter.Scrollbar(listado)
@@ -299,8 +299,8 @@ class CrudTk(tkinter.Frame):
         self.tree.column("#1", width=130)
         self.tree.column("#2", width=130)
         self.tree.column("#3", width=130)
-        self.tree.column("#4", width=130)
-        self.tree.column("#5", width=130)
+        self.tree.column("#4", width=100)
+        self.tree.column("#5", width=160)
 
         scrollbar_y.config(orient=tkinter.VERTICAL, command=self.tree.yview)
         scrollbar_x.config(orient=tkinter.HORIZONTAL, command=self.tree.xview)
@@ -323,7 +323,10 @@ class CrudTk(tkinter.Frame):
             result = self.db.busca_datos(r)
             # LO LLENAMOS CON LOS RESULTADOS
             for r in result:
-                #self.Lb1.add_data(r)
+                fecha_animal = datetime.datetime.strptime(r[-1], '%y-%m-%d %H:%M:%S')
+                r = list(r)
+                r[-1] = fecha_animal.strftime("%d/%m/%Y %H:%M:%S")
+
                 self.tree.insert(
                 "",
                 1,
@@ -360,6 +363,26 @@ class CrudTk(tkinter.Frame):
         )
         b_cancel.grid(row=2,column=3, padx=1, pady=1,sticky='ES')
         self.update()
+
+    def ver_todos(self):
+        ''' Mostrar todos los registros en el grid ''' 
+        #try:
+        result = self.db.busca_datos({"tipo":"%"})
+        self._nuevo_grid(srely=0,srelheight=0.99)            
+        for r in result:
+            fecha_animal = datetime.datetime.strptime(r[-1], '%y-%m-%d %H:%M:%S')
+            r = list(r)
+            r[-1] = fecha_animal.strftime("%d/%m/%Y %H:%M:%S")
+            self.tree.insert(
+            "",
+            1,
+            text=r[0],
+            values=r[1:],
+            )
+        #except:
+        #    self.infoLbl.config(text="No se ha podido realizar la busqueda ",fg="red", font=( '', 11, 'bold'), bd=0)
+
+      
 
     def _guardar_datos(self):        
         r = {}

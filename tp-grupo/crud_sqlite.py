@@ -25,6 +25,7 @@ class CrudSqlite:
         self.rec.commit()
 
     def nueva_tabla(self):
+        ''' Alias de crear_tabla '''
         self.crear_tabla(True)
 
     def guarda_datos(self, registro):
@@ -54,12 +55,10 @@ class CrudSqlite:
                raise TypeError('TipoRegistroError')
         campos,valores,resultset = "",[],[]
         for cosa in registro:
-            print(cosa)
             if str(registro.get(cosa)) != "":
                 campos += cosa +" like :"+cosa+" OR "
                 valores.append("%"+str(registro.get(cosa))+"%")
         query = "SELECT * FROM mascotas WHERE "+campos[:-4]
-        print(query,valores)
         self.cur.execute(query,valores)
         for x in self.cur.fetchall():
             resultset.append(x)
