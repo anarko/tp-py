@@ -366,21 +366,21 @@ class CrudTk(tkinter.Frame):
 
     def ver_todos(self):
         ''' Mostrar todos los registros en el grid ''' 
-        #try:
-        result = self.db.busca_datos({"tipo":"%"})
-        self._nuevo_grid(srely=0,srelheight=0.99)            
-        for r in result:
-            fecha_animal = datetime.datetime.strptime(r[-1], '%y-%m-%d %H:%M:%S')
-            r = list(r)
-            r[-1] = fecha_animal.strftime("%d/%m/%Y %H:%M:%S")
-            self.tree.insert(
-            "",
-            1,
-            text=r[0],
-            values=r[1:],
-            )
-        #except:
-        #    self.infoLbl.config(text="No se ha podido realizar la busqueda ",fg="red", font=( '', 11, 'bold'), bd=0)
+        try:
+            result = self.db.busca_datos({"tipo":"%"})
+            self._nuevo_grid(srely=0,srelheight=0.99)            
+            for r in result:
+                fecha_animal = datetime.datetime.strptime(r[-1], '%y-%m-%d %H:%M:%S')
+                r = list(r)
+                r[-1] = fecha_animal.strftime("%d/%m/%Y %H:%M:%S")
+                self.tree.insert(
+                "",
+                1,
+                text=r[0],
+                values=r[1:],
+                )
+        except:
+            self.infoLbl.config(text="No se ha podido realizar la busqueda ",fg="red", font=( '', 11, 'bold'), bd=0)
 
       
 

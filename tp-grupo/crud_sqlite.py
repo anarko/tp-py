@@ -38,7 +38,6 @@ class CrudSqlite:
         
         registro['fecha'] = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S")
         query = "INSERT INTO mascotas (nombre, raza, vacunas, tipo, fecha) VALUES (:nombre, :raza, :vacunas, :tipo, :fecha)"
-
         self.cur.execute(query,registro)
         self.rec.commit()
         return None
