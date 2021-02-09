@@ -2,7 +2,7 @@ import tkinter
 import re
 import datetime
 
-from tkinter import  ttk,messagebox
+from tkinter import  ttk,messagebox,StringVar
 from tkinter.colorchooser import askcolor
 from PIL import Image, ImageTk
 
@@ -84,7 +84,7 @@ class CrudTk(tkinter.Frame):
             image=self.img2,
             compound="top",
             state="disabled",
-            #command=editar,
+            command=self._editar_datos_seleccionados,
         )
         self.btn_editar.place(relx=0.11, rely=0, relheight=1, relwidth=0.105)
 
@@ -181,25 +181,33 @@ class CrudTk(tkinter.Frame):
             command=master.destroy,
         ).place(relx=0.88, rely=0, relheight=1, relwidth=0.105)
 
+        self.nombre_var, self.raza_var, self.vacunas_var, self.tipo_var = (
+            StringVar(),
+            StringVar(),
+            StringVar(),
+            StringVar(),
+        )
+        
+
     def vacia_base_datos(self):
         ''' Reinicia la base de datos '''
         valor = messagebox.askquestion("Restarurar","Esta seguro de que desea borrar todos los datos?")
         if valor == "yes":
             self.db.nueva_tabla()
 
-
     def eliminar_registro(self):
         ''' Elimina un el registro seleccionado del listbox '''
         #  TRAE DEL GRID EL ID DEL ANIMAL
-        item_id = self.tree.item(self.tree.selection()[0],option="text")        
-        valor = messagebox.askquestion("Eliminar","Esta seguro de eliminar el registro seleccionado?")
-        if valor == "yes":
-            # ELIMINA EL REGISTRO SELECCIONADO EN EL GRID       
-            self.db.elimina_datos({'id':item_id})
         try:
-            self._buscar_datos()
+            item_id = self.tree.item(self.tree.selection()[0],option="text")        
+            valor = messagebox.askquestion("Eliminar","Esta seguro de eliminar el registro seleccionado?")
+            if valor == "yes":
+                # ELIMINA EL REGISTRO SELECCIONADO EN EL GRID       
+                self.db.elimina_datos({'id':item_id})
         except:
-            pass
+            self.infoLbl.config(text="Debe seleccionar un elemento para eliminar",fg="red", font=( '', 11, 'bold'), bd=0)
+            
+        self.ver_todos()
 
     def tema(self):
         ''' Modificar el tema de colores '''
@@ -221,6 +229,41 @@ class CrudTk(tkinter.Frame):
         self.btn_editar.configure(state="disable")
         self.btn_eliminar.configure(state="disable")
 
+    def _editar_datos_seleccionados(self):
+        #  TRAE DEL GRID EL ID DEL ANIMAL
+        try:
+            item_id = self.tree.item(self.tree.selection()[0],option="text")        
+        except:
+            self.infoLbl.config(text="Debe seleccionar un elemento para editar",fg="red", font=( '', 11, 'bold'), bd=0)
+            return
+
+        self._blank_form()
+        result = self.db.busca_datos({"id":item_id})[0]
+        self.mainFrame.config(text="Mofificar",fg="blue", font=( '', 13, 'bold'), bd=1)
+        
+        # asigno los valores a modificar
+        self.nombre_var.set(result[1])
+        self.raza_var.set(result[2])
+        self.vacunas_var.set(result[3])
+        self.tipo_var.set(result[4])
+        
+
+        lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg='papaya whip', width='10')
+        lfake.grid(column=2, row=0, padx=4, pady=4, sticky='nswe')
+        
+        # AGREGAMOS LOS BOTONES PARA GUARDAR O CANCELAR
+        b_alta = tkinter.Button(
+            self.mainFrame, text="GUARDAR",  font=( '', 11, ''),width='10',
+            command=lambda:self._guardar_datos(item_id)
+        )
+        b_alta.grid(row=0,column=3,padx=1, pady=1,sticky='WS')
+        
+        b_cancel = tkinter.Button(
+            self.mainFrame, text="CANCELAR",  font=( '', 11, ''),width='10',            
+            command=self._vacia_form
+        )
+        b_cancel.grid(row=2,column=3, padx=1, pady=1,sticky='ES')
+        self.update()
 
     def _blank_form(self):
         ''' Genera un form con los datos en blanco dentro del mainFrame '''
@@ -238,11 +281,16 @@ class CrudTk(tkinter.Frame):
         l_vacunas.grid(column=0, row=2, padx=4, pady=4, sticky='W')
         l_tipo.grid(column=0, row=3, padx=4, pady=4, sticky='W')
         
+        self.nombre_var.set('')
+        self.raza_var.set('')
+        self.vacunas_var.set('')
+        self.tipo_var.set('')
+
         # CRAMOS LOS ENTRY PARA LOS DATOS
-        nombre = tkinter.Entry(self.mainFrame, width=50)        
-        raza = tkinter.Entry(self.mainFrame, width=50)
-        vacunas = tkinter.Entry(self.mainFrame, width=50)
-        tipo = ttk.Combobox(self.mainFrame, width=50, state="readonly")    
+        nombre = tkinter.Entry(self.mainFrame, width=50, textvariable=self.nombre_var)
+        raza = tkinter.Entry(self.mainFrame, width=50, textvariable=self.raza_var)
+        vacunas = tkinter.Entry(self.mainFrame, width=50, textvariable=self.vacunas_var)
+        tipo = ttk.Combobox(self.mainFrame, width=50, state="readonly", textvariable=self.tipo_var)    
         tipo["values"] = self.tipo_animal
         nombre.grid(row=0, column=1, padx=1, pady=1,sticky="WE")
         nombre.name='nombre'
@@ -305,8 +353,9 @@ class CrudTk(tkinter.Frame):
         scrollbar_y.config(orient=tkinter.VERTICAL, command=self.tree.yview)
         scrollbar_x.config(orient=tkinter.HORIZONTAL, command=self.tree.xview)
 
-
     def _buscar_datos(self):
+        ''' busca en la base de datos de acuerdo con los entry completos en el form '''
+
         r = {}
         # RECORREMOS LOS WIDGET DEL MAINFRAME PARA OBTENER LOS ENTRY DE DATOS
         for h in self.mainFrame.winfo_children():
@@ -379,12 +428,19 @@ class CrudTk(tkinter.Frame):
                 text=r[0],
                 values=r[1:],
                 )
+
+            if len(r) > 0 :
+                self.btn_editar.configure(state="normal")
+                self.btn_eliminar.configure(state="normal")                
+
         except:
-            self.infoLbl.config(text="No se ha podido realizar la busqueda ",fg="red", font=( '', 11, 'bold'), bd=0)
+            self.infoLbl.config(text="No se ha podido realizar la busqueda ",fg="red", font=( '', 11, 'bold'), bd=0)    
 
-      
+    def _guardar_datos(self,item_id = None):
+        ''' Guarda los datos en base a los datos ingresados en los entry
+            si recibe un id es una modificacion, sino es un registro nuevo
+        '''
 
-    def _guardar_datos(self):        
         r = {}
         for h in self.mainFrame.winfo_children():
             if isinstance(h,tkinter.Entry):
@@ -398,6 +454,8 @@ class CrudTk(tkinter.Frame):
                     return
                 r[h.name] = h.get()
         try:
+            if item_id is not None:
+                r['id'] = item_id
             self.db.guarda_datos(r)
             self.infoLbl.config(text="Ultimo registro guardado correctamente",fg="white", font=( '', 11, 'bold'), bd=0)
         except:
