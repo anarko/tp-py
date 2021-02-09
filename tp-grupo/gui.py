@@ -254,7 +254,7 @@ class CrudTk(tkinter.Frame):
         # AGREGAMOS LOS BOTONES PARA GUARDAR O CANCELAR
         b_alta = tkinter.Button(
             self.mainFrame, text="GUARDAR",  font=( '', 11, ''),width='10',
-            command=lambda:self._guardar_datos(item_id)
+            command =   lambda : self._guardar_datos(item_id)
         )
         b_alta.grid(row=0,column=3,padx=1, pady=1,sticky='WS')
         

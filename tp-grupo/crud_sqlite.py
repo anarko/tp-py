@@ -37,7 +37,11 @@ class CrudSqlite:
             raise TypeError('TipoRegistroError')
         
         registro['fecha'] = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S")
-        query = "INSERT INTO mascotas (nombre, raza, vacunas, tipo, fecha) VALUES (:nombre, :raza, :vacunas, :tipo, :fecha)"
+        if "id" in registro:
+            query = "UPDATE mascotas SET nombre = :nombre,  raza = :raza, vacunas = :vacunas, tipo = :tipo, fecha = :fecha WHERE id = :id"
+        else:
+            query = "INSERT INTO mascotas (nombre, raza, vacunas, tipo, fecha) VALUES (:nombre, :raza, :vacunas, :tipo, :fecha)"
+        
         self.cur.execute(query,registro)
         self.rec.commit()
         return None
@@ -57,7 +61,9 @@ class CrudSqlite:
             if str(registro.get(cosa)) != "":
                 campos += cosa +" like :"+cosa+" OR "
                 valores.append("%"+str(registro.get(cosa))+"%")
-        query = "SELECT * FROM mascotas WHERE "+campos[:-4]
+        query = "SELECT * FROM mascotas WHERE "+campos[:-4]+" ORDER By fecha"
+
+        print(query)
         self.cur.execute(query,valores)
         for x in self.cur.fetchall():
             resultset.append(x)
