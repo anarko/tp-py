@@ -1,5 +1,6 @@
-# ----------------------------------------------------IMPORTAMOS LO QUE USAREMOS ---------------------------------------------------------
+#Library import
 from tkinter import Tk, PhotoImage
+#Local import
 import gui
 
 # TODO: el form para editar

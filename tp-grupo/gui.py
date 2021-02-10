@@ -1,12 +1,12 @@
+#Library import
 import tkinter
-import re
 import datetime
-
-from tkinter import  ttk,messagebox,StringVar
+from tkinter import  ttk,messagebox
 from tkinter.colorchooser import askcolor
 from PIL import Image, ImageTk
-
+#Local import
 import crud_sqlite
+from validator import StrVarConValidador
 
 
 class CrudTk(tkinter.Frame):
@@ -29,13 +29,6 @@ class CrudTk(tkinter.Frame):
         self.bdatosMenu = tkinter.Menu(self.barraMenu, tearoff=0)
         self.bdatosMenu.add_command(label="Crear Nueva BD", command=self.vacia_base_datos)
         self.bdatosMenu.add_command(label="Crear Nueva Tabla", command=self.vacia_base_datos )
-        #self.bdatosMenu.add_command(label="Crear Nuevo Registro",command=self.nuevo_registro)
-        #self.bdatosMenu.add_separator()
-        #self.bdatosMenu.add_command(label="Ver Todos los Regitros",)
-        #self.bdatosMenu.add_separator()
-        #self.bdatosMenu.add_command(label="Eliminar BD",)
-        #self.bdatosMenu.add_command(label="Eliminar Tabla",)
-        #self.bdatosMenu.add_command(label="Eliminar Registro",)
 
         self.helpMenu = tkinter.Menu(self.barraMenu, tearoff=0)
         self.helpMenu.add_command(label="Acerca de...", command = self.ayuda)
@@ -182,10 +175,10 @@ class CrudTk(tkinter.Frame):
         ).place(relx=0.88, rely=0, relheight=1, relwidth=0.105)
 
         self.nombre_var, self.raza_var, self.vacunas_var, self.tipo_var = (
-            StringVar(),
-            StringVar(),
-            StringVar(),
-            StringVar(),
+            StrVarConValidador(),
+            StrVarConValidador(),
+            StrVarConValidador(),
+            StrVarConValidador(),
         )
         
 
@@ -218,7 +211,7 @@ class CrudTk(tkinter.Frame):
             self.botonera.configure(background=str(result[1]))
             self.mainFrame.configure(background=str(result[1]))
         except:
-            return
+            pass
 
     def _vacia_form(self):
         ''' destruye los elementos del form '''        
@@ -231,39 +224,40 @@ class CrudTk(tkinter.Frame):
 
     def _editar_datos_seleccionados(self):
         #  TRAE DEL GRID EL ID DEL ANIMAL
+        hay_elemento_seleciconado = False
         try:
             item_id = self.tree.item(self.tree.selection()[0],option="text")        
+            hay_elemento_seleciconado = True
         except:
             self.infoLbl.config(text="Debe seleccionar un elemento para editar",fg="red", font=( '', 11, 'bold'), bd=0)
-            return
-
-        self._blank_form()
-        result = self.db.busca_datos({"id":item_id})[0]
-        self.mainFrame.config(text="Mofificar",fg="blue", font=( '', 13, 'bold'), bd=1)
-        
-        # asigno los valores a modificar
-        self.nombre_var.set(result[1])
-        self.raza_var.set(result[2])
-        self.vacunas_var.set(result[3])
-        self.tipo_var.set(result[4])
-        
-
-        lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg='papaya whip', width='10')
-        lfake.grid(column=2, row=0, padx=4, pady=4, sticky='nswe')
-        
-        # AGREGAMOS LOS BOTONES PARA GUARDAR O CANCELAR
-        b_alta = tkinter.Button(
-            self.mainFrame, text="GUARDAR",  font=( '', 11, ''),width='10',
-            command =   lambda : self._guardar_datos(item_id)
-        )
-        b_alta.grid(row=0,column=3,padx=1, pady=1,sticky='WS')
-        
-        b_cancel = tkinter.Button(
-            self.mainFrame, text="CANCELAR",  font=( '', 11, ''),width='10',            
-            command=self._vacia_form
-        )
-        b_cancel.grid(row=2,column=3, padx=1, pady=1,sticky='ES')
-        self.update()
+            
+        if hay_elemento_seleciconado is True:
+            self._blank_form()
+            result = self.db.busca_datos({"id":item_id})[0]
+            self.mainFrame.config(text="Mofificar",fg="blue", font=( '', 13, 'bold'), bd=1)
+            
+            # asigno los valores a modificar
+            self.nombre_var.set(result[1])
+            self.raza_var.set(result[2])
+            self.vacunas_var.set(result[3])
+            self.tipo_var.set(result[4])
+            
+            lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg='papaya whip', width='10')
+            lfake.grid(column=2, row=0, padx=4, pady=4, sticky='nswe')
+            
+            # AGREGAMOS LOS BOTONES PARA GUARDAR O CANCELAR
+            b_alta = tkinter.Button(
+                self.mainFrame, text="GUARDAR",  font=( '', 11, ''),width='10',
+                command =   lambda : self._guardar_datos(item_id)
+            )
+            b_alta.grid(row=0,column=3,padx=1, pady=1,sticky='WS')
+            
+            b_cancel = tkinter.Button(
+                self.mainFrame, text="CANCELAR",  font=( '', 11, ''),width='10',            
+                command=self._vacia_form
+            )
+            b_cancel.grid(row=2,column=3, padx=1, pady=1,sticky='ES')
+            self.update()
 
     def _blank_form(self):
         ''' Genera un form con los datos en blanco dentro del mainFrame '''
@@ -357,15 +351,31 @@ class CrudTk(tkinter.Frame):
         ''' busca en la base de datos de acuerdo con los entry completos en el form '''
 
         r = {}
-        # RECORREMOS LOS WIDGET DEL MAINFRAME PARA OBTENER LOS ENTRY DE DATOS
-        for h in self.mainFrame.winfo_children():
-            if isinstance(h,tkinter.Entry):
-                if len(h.get()) != 0:
-                    # COMPROBAMOS QUE SE INGRESEN SOLO CARACTERES ALFANUMERICOS
-                    if re.fullmatch("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$",h.get()) is None:
-                        self.infoLbl.config(text="Solo permiten caracteres alfanumericos ("+h.name+")",fg="red", font=( '', 11, 'bold'), bd=0)
-                        return
-                    r[h.name] = h.get()
+
+        if self.nombre_var.validar_no_vacio() :
+            if self.nombre_var.validar_alfanumerico() is False:
+                self.infoLbl.config(text="Solo permiten caracteres alfanumericos en el nombre",fg="red", font=( '', 11, 'bold'), bd=0)
+            else:
+                r['nombre'] = self.nombre_var.get()
+
+        if self.raza_var.validar_no_vacio() :
+            if self.raza_var.validar_alfanumerico() is False:
+                self.infoLbl.config(text="Solo permiten caracteres alfanumericos en la raza",fg="red", font=( '', 11, 'bold'), bd=0)
+            else:
+                r['raza'] = self.raza_var.get()
+
+        if self.vacunas_var.validar_no_vacio() :
+            if self.vacunas_var.validar_alfanumerico() is False:
+                self.infoLbl.config(text="Solo permiten caracteres alfanumericos para las vacunas",fg="red", font=( '', 11, 'bold'), bd=0)
+            else:
+                r['vacunas'] = self.vacunas_var.get()
+
+        if self.tipo_var.validar_no_vacio() :
+            if self.tipo_var.validar_alfanumerico() is False:
+                self.infoLbl.config(text="Solo permiten caracteres alfanumericos para el tipo",fg="red", font=( '', 11, 'bold'), bd=0)
+            else:
+                r['tipo'] = self.tipo_var.get()
+
         # VACIAMOS EL GRID
         self.tree.delete(*self.tree.get_children())
         try :
@@ -440,27 +450,30 @@ class CrudTk(tkinter.Frame):
         ''' Guarda los datos en base a los datos ingresados en los entry
             si recibe un id es una modificacion, sino es un registro nuevo
         '''
-
+        campos_validos = True
         r = {}
-        for h in self.mainFrame.winfo_children():
-            if isinstance(h,tkinter.Entry):
-                if len(h.get()) == 0:
-                    # COMPRUEBA QUE NO SE INGRESEN CAMPOS VACIOS
-                    self.infoLbl.config(text="No se permiten campos vacios ("+h.name+")",fg="red", font=( '', 11, 'bold'), bd=0)
-                    return
-                if re.fullmatch("^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$",h.get()) is None:
-                    # COMPRUEBA QUE SOLO SE INGRESEN CARACTERES ALFANUMERICOS
-                    self.infoLbl.config(text="Solo permiten caracteres alfanumericos ("+h.name+")",fg="red", font=( '', 11, 'bold'), bd=0)
-                    return
-                r[h.name] = h.get()
-        try:
-            if item_id is not None:
-                r['id'] = item_id
-            self.db.guarda_datos(r)
-            self.infoLbl.config(text="Ultimo registro guardado correctamente",fg="white", font=( '', 11, 'bold'), bd=0)
-        except:
-            self.infoLbl.config(text="No se ha podido guardar el registro",fg="red", font=( '', 11, 'bold'), bd=0)
-        self._vacia_form()
+
+        if ( self.nombre_var.validar_alfanumerico() is False or self.nombre_var.validar_no_vacio() is False 
+            or self.raza_var.validar_alfanumerico() is False or self.raza_var.validar_no_vacio() is False 
+            or self.vacunas_var.validar_alfanumerico() is False or self.vacunas_var.validar_no_vacio() is False
+            or self.tipo_var.validar_alfanumerico() is False or self.tipo_var.validar_no_vacio() is False ):
+                campos_validos = False
+
+        if campos_validos is True:
+            try:
+                r['nombre'] = self.nombre_var.get()
+                r['raza'] = self.raza_var.get()
+                r['vacunas'] = self.vacunas_var.get()
+                r['tipo'] = self.tipo_var.get()
+                if item_id is not None:
+                    r['id'] = item_id
+                self.db.guarda_datos(r)
+                self.infoLbl.config(text="Ultimo registro guardado correctamente",fg="white", font=( '', 11, 'bold'), bd=0)
+                self._vacia_form()
+            except:
+                self.infoLbl.config(text="No se ha podido guardar el registro",fg="red", font=( '', 11, 'bold'), bd=0)
+        else:
+            self.infoLbl.config(text="Solo se permiten caracteres alfanumercos en los datos",fg="red", font=( '', 11, 'bold'), bd=0)
 
     def ayuda(self):
         ''' Muestra ventanita de  acerda de '''

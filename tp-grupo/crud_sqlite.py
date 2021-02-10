@@ -1,3 +1,4 @@
+#Library import
 import sqlite3
 import datetime
 
@@ -59,7 +60,7 @@ class CrudSqlite:
         campos,valores,resultset = "",[],[]
         for cosa in registro:
             if str(registro.get(cosa)) != "":
-                campos += cosa +" like :"+cosa+" OR "
+                campos += cosa +" like :"+cosa+" AND "
                 valores.append("%"+str(registro.get(cosa))+"%")
         query = "SELECT * FROM mascotas WHERE "+campos[:-4]+" ORDER By fecha"
 
@@ -94,11 +95,4 @@ def _dict_factory(cursor, row):
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
     return d
-    
 
-if __name__ == "__main__":
-    ''' test module functions '''
-
-    a = CrudSqlite()
-    a.guarda_datos({'titulo':'titulo 2','descripcion':'descrip2'})
-    print(a.busca_datos({'titulo':"%"}))
