@@ -64,7 +64,6 @@ class CrudSqlite:
                 valores.append("%"+str(registro.get(cosa))+"%")
         query = "SELECT * FROM mascotas WHERE "+campos[:-4]+" ORDER By fecha"
 
-        print(query)
         self.cur.execute(query,valores)
         for x in self.cur.fetchall():
             resultset.append(x)
