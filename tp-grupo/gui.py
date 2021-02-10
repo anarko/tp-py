@@ -184,12 +184,14 @@ class CrudTk(tkinter.Frame):
 
     def vacia_base_datos(self):
         ''' Reinicia la base de datos '''
+        
         valor = messagebox.askquestion("Restarurar","Esta seguro de que desea borrar todos los datos?")
         if valor == "yes":
             self.db.nueva_tabla()
 
     def eliminar_registro(self):
         ''' Elimina un el registro seleccionado del listbox '''
+
         #  TRAE DEL GRID EL ID DEL ANIMAL
         try:
             item_id = self.tree.item(self.tree.selection()[0],option="text")        
@@ -204,6 +206,7 @@ class CrudTk(tkinter.Frame):
 
     def tema(self):
         ''' Modificar el tema de colores '''
+
         result = askcolor(color="#00ff00", title="Seleccionar Color")
 
         try:
@@ -214,7 +217,8 @@ class CrudTk(tkinter.Frame):
             pass
 
     def _vacia_form(self):
-        ''' destruye los elementos del form '''        
+        ''' destruye los elementos del form '''
+
         # ELIMINA TODOS LOS WIDGETS DEL MAINFRAME PARA PODER USARLO DE NUEVO
         self.mainFrame.config(text="", bd=0)
         for cosa in self.mainFrame.winfo_children():
@@ -223,6 +227,8 @@ class CrudTk(tkinter.Frame):
         self.btn_eliminar.configure(state="disable")
 
     def _editar_datos_seleccionados(self):
+        ''' abre el form para editar los datos de un registro '''
+
         #  TRAE DEL GRID EL ID DEL ANIMAL
         hay_elemento_seleciconado = False
         try:
@@ -313,6 +319,8 @@ class CrudTk(tkinter.Frame):
         self._nuevo_grid()
         
     def _nuevo_grid(self, srely=0.3,srelheight=0.68):
+        ''' crea un grid en blanco para mostrar los resultados '''
+
         # CREAMOS EL FRAME DONDE VAN A IR LOS RESULTADOS DE LA BUSQUDA
         listado = tkinter.Frame(self.mainFrame, bg="papaya whip")
         listado.place(relx=0.01, rely=srely, relheight=srelheight, relwidth=0.99)
@@ -348,10 +356,11 @@ class CrudTk(tkinter.Frame):
         scrollbar_x.config(orient=tkinter.HORIZONTAL, command=self.tree.xview)
 
     def _buscar_datos(self):
-        ''' busca en la base de datos de acuerdo con los entry completos en el form '''
+        ''' busca en la base de datos de acuerdo con los entry completos en el form 
+            si no pusieron caracteres alfanumericos en los entry no los considera para la busqueda
+        '''
 
         r = {}
-
         if self.nombre_var.validar_no_vacio() :
             if self.nombre_var.validar_alfanumerico() is False:
                 self.infoLbl.config(text="Solo permiten caracteres alfanumericos en el nombre",fg="red", font=( '', 11, 'bold'), bd=0)
@@ -425,6 +434,7 @@ class CrudTk(tkinter.Frame):
 
     def ver_todos(self):
         ''' Mostrar todos los registros en el grid ''' 
+
         try:
             result = self.db.busca_datos({"tipo":"%"})
             self._nuevo_grid(srely=0,srelheight=0.99)            
@@ -450,6 +460,7 @@ class CrudTk(tkinter.Frame):
         ''' Guarda los datos en base a los datos ingresados en los entry
             si recibe un id es una modificacion, sino es un registro nuevo
         '''
+        
         campos_validos = True
         r = {}
 

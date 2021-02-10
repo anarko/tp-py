@@ -18,6 +18,7 @@ class CrudSqlite:
 
     def crear_tabla(self,drop=False):
         ''' Crea la tabla si no existe, si se pasa el parametro drop=true la borra y crea de nuevo '''
+        
         self.cur = self.rec.cursor()
         if drop: 
             self.cur.execute('DROP TABLE IF EXISTS mascotas')        
@@ -27,6 +28,7 @@ class CrudSqlite:
 
     def nueva_tabla(self):
         ''' Alias de crear_tabla '''
+
         self.crear_tabla(True)
 
     def guarda_datos(self, registro):
