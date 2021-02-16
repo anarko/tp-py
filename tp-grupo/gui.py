@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 #Local import
 import crud_sqlite
 from validator import StrVarConValidador
+from refugio_v4_alpha_1 import APP_PATH
 
 
 class CrudTk(tkinter.Frame):
@@ -18,7 +19,7 @@ class CrudTk(tkinter.Frame):
         self.tipo_animal = ["FELINO", "CANINO", "REPTIL", "AVE", "INSECTO", "PEZ"]
         
         # coneccion a la base de datos
-        self.db = crud_sqlite.CrudSqlite()
+        self.db = crud_sqlite.CrudSqlite(APP_PATH+"/refugio.db")
         
         self.barraMenu = tkinter.Menu(master)
         master.config(menu=self.barraMenu, width=300, height=300)
@@ -49,12 +50,12 @@ class CrudTk(tkinter.Frame):
         self.infoFrame.pack(side="bottom", fill="x")
         self.infoLbl = tkinter.Label(self.infoFrame, text="", font=( '', 11, 'bold'),fg='white',bg='black')
         self.infoLbl.grid(column=0, row=0, padx=4, pady=4, sticky='W')
-
+        self.default_bg = "papaya whip"
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON NUEVO Y LO DEFINIMOS
         # COMO NO VAMOS A USARLO MAS ADELANTE. NO DEFINIMOS UNA VARIABLE QUE APUNTE AL OBJETO
         # EL CAMBIO DE TEMA ES SOLO PARA CAMBIAR EL COLOR DE FONDO DE LA APP.
         # USAMOS PLACE PARA QUE LA APP SE ADAPTE A LA RESOLUCION QUE TENGA DISPONIBLE O PREFIERA EL USUARIO
-        self.img = ImageTk.PhotoImage(Image.open("img/019-add.png"))
+        self.img = ImageTk.PhotoImage(Image.open(APP_PATH+"/img/019-add.png"))
         tkinter.Button(
             self.botonera,
             text="NUEVO",
@@ -67,7 +68,7 @@ class CrudTk(tkinter.Frame):
         ).place(relx=0, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON EDITAR Y LO DEFINIMOS
-        self.img2 = ImageTk.PhotoImage(Image.open("img/018-edit.png"))
+        self.img2 = ImageTk.PhotoImage(Image.open(APP_PATH+"/img/018-edit.png"))
         self.btn_editar = tkinter.Button(
             self.botonera,
             text="EDITAR",
@@ -82,7 +83,7 @@ class CrudTk(tkinter.Frame):
         self.btn_editar.place(relx=0.11, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON ELIMINAR Y LO DEFINIMOS
-        self.img3 = ImageTk.PhotoImage(Image.open("img/015-remove.png"))
+        self.img3 = ImageTk.PhotoImage(Image.open(APP_PATH+"/img/015-remove.png"))
         self.btn_eliminar = tkinter.Button(
             self.botonera,
             text="ELIMINAR",
@@ -97,7 +98,7 @@ class CrudTk(tkinter.Frame):
         self.btn_eliminar.place(relx=0.22, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON ELIMINAR Y LO DEFINIMOS
-        self.img4 = ImageTk.PhotoImage(Image.open("img/027-search.png"))
+        self.img4 = ImageTk.PhotoImage(Image.open(APP_PATH+"/img/027-search.png"))
         tkinter.Button(
             self.botonera,
             text="BUSCAR",
@@ -110,7 +111,7 @@ class CrudTk(tkinter.Frame):
         ).place(relx=0.33, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON VER TODO Y LO DEFINIMOS
-        self.img5 = ImageTk.PhotoImage(Image.open("img/005-infographic.png"))
+        self.img5 = ImageTk.PhotoImage(Image.open(APP_PATH+"/img/005-infographic.png"))
         tkinter.Button(
             self.botonera,
             text="VER TODO",
@@ -123,7 +124,7 @@ class CrudTk(tkinter.Frame):
         ).place(relx=0.44, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON LIMPIAR Y LO DEFINIMOS        
-        self.img6 = ImageTk.PhotoImage(Image.open("img/023-remove.png"))
+        self.img6 = ImageTk.PhotoImage(Image.open(APP_PATH+"/img/023-remove.png"))
         tkinter.Button(
             self.botonera,
             text="LIMPIAR",
@@ -136,7 +137,7 @@ class CrudTk(tkinter.Frame):
         ).place(relx=0.55, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON RESTAURAR Y LO DEFINIMOS
-        self.img7 = ImageTk.PhotoImage(Image.open("img/024-reload.png"))
+        self.img7 = ImageTk.PhotoImage(Image.open(APP_PATH+"/img/024-reload.png"))
         tkinter.Button(
             self.botonera,
             text="RESTAURAR",
@@ -149,7 +150,7 @@ class CrudTk(tkinter.Frame):
         ).place(relx=0.66, rely=0, relheight=1, relwidth=0.105)
 
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON TEMA Y LO DEFINIMOS
-        self.img8 = ImageTk.PhotoImage(Image.open("img/028-setting.png"))
+        self.img8 = ImageTk.PhotoImage(Image.open(APP_PATH+"/img/028-setting.png"))
         tkinter.Button(
             self.botonera,
             text="TEMA",
@@ -162,7 +163,7 @@ class CrudTk(tkinter.Frame):
         ).place(relx=0.77, rely=0, relheight=1, relwidth=0.105)       
         
         # DEFINIMOS LA IMAGEN A USAR EN EL BOTON SALIR Y LO DEFINIMOS        
-        self.img9 = ImageTk.PhotoImage(Image.open("img/icon_cancelar.png"))
+        self.img9 = ImageTk.PhotoImage(Image.open(APP_PATH+"/img/icon_cancelar.png"))
         tkinter.Button(
             self.botonera,
             text="SALIR",
@@ -213,6 +214,7 @@ class CrudTk(tkinter.Frame):
             self.master.configure(background=str(result[1]))
             self.botonera.configure(background=str(result[1]))
             self.mainFrame.configure(background=str(result[1]))
+            self.default_bg = str(result[1])
         except:
             pass
 
@@ -248,7 +250,7 @@ class CrudTk(tkinter.Frame):
             self.vacunas_var.set(result[3])
             self.tipo_var.set(result[4])
             
-            lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg='papaya whip', width='10')
+            lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg=self.default_bg, width='10')
             lfake.grid(column=2, row=0, padx=4, pady=4, sticky='nswe')
             
             # AGREGAMOS LOS BOTONES PARA GUARDAR O CANCELAR
@@ -271,10 +273,10 @@ class CrudTk(tkinter.Frame):
         self.infoLbl.config(text="",fg="blue", font=( '', 11, 'bold'), bd=0)        
         self._vacia_form()             
         # CREAMOS LAS ETIQUETAS QUE INDICARAN QUE DATO INTRODUCIR EN CADA ENTRADA (ENTRY)
-        l_nombre = tkinter.Label(self.mainFrame, text="NOMBRE", font=( '', 11, 'bold'),fg='black',bg='papaya whip')
-        l_raza = tkinter.Label(self.mainFrame, text="RAZA", font=( '', 11, 'bold'),fg='black',bg='papaya whip')
-        l_vacunas = tkinter.Label(self.mainFrame, text="VACUNAS", font=( '', 11, 'bold'),fg='black',bg='papaya whip')
-        l_tipo = tkinter.Label(self.mainFrame, text="TIPO", font=( '', 11, 'bold'),fg='black',bg='papaya whip')
+        l_nombre = tkinter.Label(self.mainFrame, text="NOMBRE", font=( '', 11, 'bold'),fg='black',bg=self.default_bg)
+        l_raza = tkinter.Label(self.mainFrame, text="RAZA", font=( '', 11, 'bold'),fg='black',bg=self.default_bg)
+        l_vacunas = tkinter.Label(self.mainFrame, text="VACUNAS", font=( '', 11, 'bold'),fg='black',bg=self.default_bg)
+        l_tipo = tkinter.Label(self.mainFrame, text="TIPO", font=( '', 11, 'bold'),fg='black',bg=self.default_bg)
 
         l_nombre.grid(column=0, row=0, padx=4, pady=4, sticky='W')
         l_raza.grid(column=0, row=1, padx=4, pady=4, sticky='W')
@@ -308,7 +310,7 @@ class CrudTk(tkinter.Frame):
         self.mainFrame.config(text="Buscar ingreso",fg="blue", font=( '', 13, 'bold'), bd=1)
 
         # LABEL VACIO PARA SEPARAR LOS BOTONES DE LOS ENTRY        
-        lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg='papaya whip', width='10')
+        lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg=self.default_bg, width='10')
         lfake.grid(column=2, row=0, padx=4, pady=4, sticky='nswe')
 
         b_alta = tkinter.Button(
@@ -322,7 +324,7 @@ class CrudTk(tkinter.Frame):
         ''' crea un grid en blanco para mostrar los resultados '''
 
         # CREAMOS EL FRAME DONDE VAN A IR LOS RESULTADOS DE LA BUSQUDA
-        listado = tkinter.Frame(self.mainFrame, bg="papaya whip")
+        listado = tkinter.Frame(self.mainFrame, bg=self.default_bg)
         listado.place(relx=0.01, rely=srely, relheight=srelheight, relwidth=0.99)
         scrollbar_y = tkinter.Scrollbar(listado)
         scrollbar_y.place(relx=0.975, rely=0.01, relheight=0.99, relwidth=0.015)
@@ -415,7 +417,7 @@ class CrudTk(tkinter.Frame):
         self._blank_form()
         self.mainFrame.config(text="Nuevo ingreso",fg="blue", font=( '', 13, 'bold'), bd=1)
 
-        lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg='papaya whip', width='10')
+        lfake = tkinter.Label(self.mainFrame, text="", font=( '', 11, 'bold'),bg=self.default_bg, width='10')
         lfake.grid(column=2, row=0, padx=4, pady=4, sticky='nswe')
         
         # AGREGAMOS LOS BOTONES PARA GUARDAR O CANCELAR
@@ -491,7 +493,7 @@ class CrudTk(tkinter.Frame):
 
         top_acerca = tkinter.Toplevel(self.master)
         top_acerca.title("Mascotas Soft")
-        top_acerca.iconphoto(True, tkinter.PhotoImage(file="img/perro.png"))
+        top_acerca.iconphoto(True, tkinter.PhotoImage(file=APP_PATH+"/img/perro.png"))
         top_acerca.resizable(0, 0)
 
         acercaCanva = tkinter.Canvas(top_acerca, width=320, height=250, bg="black", bd=0)
