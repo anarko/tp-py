@@ -3,13 +3,12 @@ import sqlite3
 import datetime
 
 class CrudSqlite:
-    ''' Clase para conexion y manejo de la base de datos sqlite3 '''
+    """ Clase para conexion y manejo de la base de datos sqlite3 """
     rec = None
 
     def __init__(self, fileName="default.db"):
         try:
             self.rec = sqlite3.connect(fileName)
-            #self.rec.row_factory = _dict_factory
         except:            
             self.rec = None #limpio la coneccion por las dudas
             raise RuntimeError("Error accediendo/creando la base de datos")            
@@ -17,7 +16,7 @@ class CrudSqlite:
         return None
 
     def crear_tabla(self,drop=False):
-        ''' Crea la tabla si no existe, si se pasa el parametro drop=true la borra y crea de nuevo '''
+        """ Crea la tabla si no existe, si se pasa el parametro drop=true la borra y crea de nuevo """
         
         self.cur = self.rec.cursor()
         if drop: 
@@ -27,12 +26,12 @@ class CrudSqlite:
         self.rec.commit()
 
     def nueva_tabla(self):
-        ''' Alias de crear_tabla '''
+        """ Alias de crear_tabla """
 
         self.crear_tabla(True)
 
     def guarda_datos(self, registro):
-        ''' Recibe un dict como registro de datos e intenta guardarlo como nuevo, si existe actualiza título y descripción '''
+        """ Recibe un dict como registro de datos e intenta guardarlo como nuevo, si existe actualiza el registro"""
 
         if ( not self.rec ):
             raise RuntimeError("Base de datos no prensete")
@@ -50,10 +49,10 @@ class CrudSqlite:
         return None
     
     def busca_datos(self,registro):
-        ''' 
+        """ 
             Recibe un dict como registro de datos y busca en base a los datos del registro. 
             Devuelve una lista de diccionarios con los registros encontrados
-        '''
+        """
 
         if ( not self.rec ):
             raise RuntimeError("Base de datos no prensete")
@@ -72,7 +71,7 @@ class CrudSqlite:
         return resultset
     
     def elimina_datos(self,registro):
-        ''' Recibe un dict como registro de datos y elimina de la base de datos en base al registro '''
+        """ Recibe un dict como registro de datos y elimina de la base de datos en base al registro """
 
         if ( not self.rec ):
             raise RuntimeError("Base de datos no prensete")
@@ -87,13 +86,3 @@ class CrudSqlite:
         self.cur.execute(query,valores)
         self.rec.commit()
         return None 
-    
-
-def _dict_factory(cursor, row):
-    ''' Reemplaza el generador originael de SQLite3 por uno que devuelve un dict '''
-      
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
-

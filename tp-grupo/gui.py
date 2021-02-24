@@ -7,11 +7,11 @@ from PIL import Image, ImageTk
 #Local import
 import crud_sqlite
 from validator import StrVarConValidador
-from refugio_v4_alpha_1 import APP_PATH
+from refugio_v4 import APP_PATH
 
 
 class CrudTk(tkinter.Frame):
-    ''' Extiende la clase Frame de tk para poder manejar los contenedores y contenidos del crud '''
+    """ Extiende la clase Frame de tk para poder manejar los contenedores y contenidos del crud """
 
     def __init__(self, master):
         tkinter.Frame.__init__(self, master,height=300, width=100)
@@ -181,17 +181,16 @@ class CrudTk(tkinter.Frame):
             StrVarConValidador(),
             StrVarConValidador(),
         )
-        
 
     def vacia_base_datos(self):
-        ''' Reinicia la base de datos '''
+        """ Reinicia la base de datos """
         
         valor = messagebox.askquestion("Restarurar","Esta seguro de que desea borrar todos los datos?")
         if valor == "yes":
             self.db.nueva_tabla()
 
     def eliminar_registro(self):
-        ''' Elimina un el registro seleccionado del listbox '''
+        """ Elimina un el registro seleccionado del listbox """
 
         #  TRAE DEL GRID EL ID DEL ANIMAL
         try:
@@ -206,7 +205,7 @@ class CrudTk(tkinter.Frame):
         self.ver_todos()
 
     def tema(self):
-        ''' Modificar el tema de colores '''
+        """ Modificar el tema de colores """
 
         result = askcolor(color="#00ff00", title="Seleccionar Color")
 
@@ -219,7 +218,7 @@ class CrudTk(tkinter.Frame):
             pass
 
     def _vacia_form(self):
-        ''' destruye los elementos del form '''
+        """ Destruye los elementos del form """
 
         # ELIMINA TODOS LOS WIDGETS DEL MAINFRAME PARA PODER USARLO DE NUEVO
         self.mainFrame.config(text="", bd=0)
@@ -229,7 +228,7 @@ class CrudTk(tkinter.Frame):
         self.btn_eliminar.configure(state="disable")
 
     def _editar_datos_seleccionados(self):
-        ''' abre el form para editar los datos de un registro '''
+        """ Abre el form para editar los datos de un registro """
 
         #  TRAE DEL GRID EL ID DEL ANIMAL
         hay_elemento_seleciconado = False
@@ -268,7 +267,7 @@ class CrudTk(tkinter.Frame):
             self.update()
 
     def _blank_form(self):
-        ''' Genera un form con los datos en blanco dentro del mainFrame '''
+        """ Genera un form con los datos en blanco dentro del mainFrame """
 
         self.infoLbl.config(text="",fg="blue", font=( '', 11, 'bold'), bd=0)        
         self._vacia_form()             
@@ -304,7 +303,7 @@ class CrudTk(tkinter.Frame):
         tipo.name='tipo'
 
     def buscar_datos(self):
-        ''' Busca en la base de datos en base a lo ingresado en el form '''
+        """ Busca en la base de datos en base a lo ingresado en el form """
 
         self._blank_form()
         self.mainFrame.config(text="Buscar ingreso",fg="blue", font=( '', 13, 'bold'), bd=1)
@@ -321,7 +320,7 @@ class CrudTk(tkinter.Frame):
         self._nuevo_grid()
         
     def _nuevo_grid(self, srely=0.3,srelheight=0.68):
-        ''' crea un grid en blanco para mostrar los resultados '''
+        """ Crea un grid en blanco para mostrar los resultados """
 
         # CREAMOS EL FRAME DONDE VAN A IR LOS RESULTADOS DE LA BUSQUDA
         listado = tkinter.Frame(self.mainFrame, bg=self.default_bg)
@@ -358,9 +357,9 @@ class CrudTk(tkinter.Frame):
         scrollbar_x.config(orient=tkinter.HORIZONTAL, command=self.tree.xview)
 
     def _buscar_datos(self):
-        ''' busca en la base de datos de acuerdo con los entry completos en el form 
+        """ Busca en la base de datos de acuerdo con los entry completos en el form 
             si no pusieron caracteres alfanumericos en los entry no los considera para la busqueda
-        '''
+        """
 
         r = {}
         if self.nombre_var.validar_no_vacio() :
@@ -411,7 +410,7 @@ class CrudTk(tkinter.Frame):
             self.btn_eliminar.configure(state="normal")
 
     def nuevo_registro(self):
-        ''' Arma el form para un nuevo registro''' 
+        """ Arma el form para un nuevo registro""" 
         
         # CONFIGURAMOS EL MAINFRAME PARA UN NUEVO INGRESO
         self._blank_form()
@@ -435,7 +434,7 @@ class CrudTk(tkinter.Frame):
         self.update()
 
     def ver_todos(self):
-        ''' Mostrar todos los registros en el grid ''' 
+        """ Mostrar todos los registros en el grid """ 
 
         try:
             result = self.db.busca_datos({"tipo":"%"})
@@ -459,9 +458,9 @@ class CrudTk(tkinter.Frame):
             self.infoLbl.config(text="No se ha podido realizar la busqueda ",fg="red", font=( '', 11, 'bold'), bd=0)    
 
     def _guardar_datos(self,item_id = None):
-        ''' Guarda los datos en base a los datos ingresados en los entry
+        """ Guarda los datos en base a los datos ingresados en los entry
             si recibe un id es una modificacion, sino es un registro nuevo
-        '''
+        """
         
         campos_validos = True
         r = {}
@@ -489,7 +488,7 @@ class CrudTk(tkinter.Frame):
             self.infoLbl.config(text="Solo se permiten caracteres alfanumercos en los datos",fg="red", font=( '', 11, 'bold'), bd=0)
 
     def ayuda(self):
-        ''' Muestra ventanita de  acerda de '''
+        """ Muestra ventanita de  acerda de """
 
         top_acerca = tkinter.Toplevel(self.master)
         top_acerca.title("Mascotas Soft")
